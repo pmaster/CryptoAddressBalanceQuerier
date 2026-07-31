@@ -27,10 +27,13 @@ with no key and no API calls.
 | **Zerion** (default) | Free API key — email signup at [developers.zerion.io](https://developers.zerion.io), no payment, no KYC | All major EVM chains in one call: totals, per-chain breakdown, wallet tokens with prices, DeFi positions by protocol, NFT floor value | 2 (3 with NFTs) |
 | **DeBank Pro** | Paid — prepaid "units" at [cloud.debank.com](https://cloud.debank.com) | The deepest DeFi/protocol coverage and NFT item lists | 2–4 |
 
-Both are supported; pick in the GUI's provider dropdown. Zerion's free tier is
-comfortably enough for 50 wallets (its rate limits are per-second, not a tiny
-monthly cap). If you ever want DeBank's deeper protocol detail, buy units and
-switch the dropdown — no code changes.
+Both are supported; pick in the GUI's provider dropdown. Zerion's free tier
+allows **2,000 requests/day at 3 RPS**. With "Verified tokens only" on
+(default), the tool needs just **1 request per wallet** (2 with NFT value), so
+50 wallets is a small fraction of the daily quota. Requests are globally paced
+and a circuit breaker stops the run early on persistent 429s — retrying into
+an exhausted quota only burns more of it. If you ever want DeBank's deeper
+protocol detail, buy units and switch the dropdown — no code changes.
 
 Other options considered and why they're not wired in:
 

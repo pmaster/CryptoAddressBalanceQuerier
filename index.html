@@ -220,12 +220,20 @@ async function rateSlot(provider) {
   if (t > now) await sleep(t - now);
 }
 
+// Circuit breaker: retrying 429s consumes the very quota that caused them
+// (e.g. Zerion free tier: 2,000 requests/day). After enough consecutive
+// 429s across the whole run, fail remaining requests fast instead.
+let consecutive429 = 0;
+const QUOTA_MSG = "persistent rate limiting — provider quota likely exhausted " +
+  "(Zerion free tier: 2,000 requests/day). Use Retry failed after the quota resets.";
+
 async function apiGet(provider, path, params, signal) {
   let url = `/api/${provider}/${path}`;
   const qs = new URLSearchParams(params).toString();
   if (qs) url += "?" + qs;
-  let transient = 0, indexing = 0;
+  let transient = 0, throttled = 0, indexing = 0;
   while (true) {
+    if (consecutive429 >= 12) throw new Error(QUOTA_MSG);
     await rateSlot(provider);
     let res;
     try {
@@ -236,16 +244,24 @@ async function apiGet(provider, path, params, signal) {
       await sleep(Math.min(30000, 1000 * 2 ** transient));
       continue;
     }
+    if (res.status === 429) {
+      consecutive429++; throttled++;
+      if (consecutive429 >= 12) throw new Error(QUOTA_MSG);
+      if (throttled > 4) throw new Error("gave up after retries (HTTP 429)");
+      const ra = Number(res.headers.get("Retry-After"));
+      await sleep(ra > 0 ? ra * 1000 : Math.min(30000, 3000 * 2 ** throttled));
+      continue;
+    }
+    consecutive429 = 0;
     if (res.status === 202) {   // Zerion is indexing a first-seen wallet; can take a few minutes
       if (++indexing > 24) throw new Error("wallet still indexing on Zerion's side — use Retry failed in a minute");
       await sleep(8000);
       continue;
     }
     if (res.ok) return res.json();
-    if (res.status === 429 || res.status >= 500) {   // rate limit / transient — back off and retry
-      if (++transient > 8) throw new Error("gave up after retries (HTTP " + res.status + ")");
-      const ra = Number(res.headers.get("Retry-After"));
-      await sleep(ra > 0 ? ra * 1000 : Math.min(30000, 2000 * 2 ** transient));
+    if (res.status >= 500) {
+      if (++transient > 5) throw new Error("gave up after retries (HTTP " + res.status + ")");
+      await sleep(Math.min(30000, 2000 * 2 ** transient));
       continue;
     }
     const body = await res.text().catch(() => "");
@@ -294,20 +310,23 @@ function demoData(address) {
 
 /* ---------- provider fetchers: all normalize to the same row shape ---------- */
 async function fetchZerion(address, opts, signal) {
-  const portfolio = await apiGet("zerion", `wallets/${address}/portfolio`,
-    { currency: "usd", "filter[positions]": "no_filter" }, signal);
-  const attrs = portfolio?.data?.attributes || {};
-  const byType = attrs.positions_distribution_by_type || {};
-  const byChain = attrs.positions_distribution_by_chain || {};
+  const out = { totalUsd: 0, walletUsd: 0, defiUsd: 0, chainList: [],
+                tokens: [], positions: [], nftCount: null, nftUsd: null, nftByChain: {} };
 
-  const out = {
-    totalUsd: num(attrs.total?.positions),
-    walletUsd: num(byType.wallet),
-    chainList: Object.entries(byChain).map(([id, v]) => ({ id, usd_value: num(v) }))
-      .filter(c => c.usd_value > 0.01),
-    tokens: [], positions: [], nftCount: null, nftUsd: null, nftByChain: {},
-  };
-  out.defiUsd = round2(out.totalUsd - out.walletUsd);
+  // With "verified only" on, totals are recomputed from the positions list
+  // below, so the portfolio request would be redundant — skip it to keep
+  // one request per wallet (free-tier quotas are small).
+  const recompute = opts.verifiedOnly && (opts.tokens || opts.protocols);
+  if (!recompute) {
+    const portfolio = await apiGet("zerion", `wallets/${address}/portfolio`,
+      { currency: "usd", "filter[positions]": "no_filter" }, signal);
+    const attrs = portfolio?.data?.attributes || {};
+    out.totalUsd = num(attrs.total?.positions);
+    out.walletUsd = num(attrs.positions_distribution_by_type?.wallet);
+    out.defiUsd = round2(out.totalUsd - out.walletUsd);
+    out.chainList = Object.entries(attrs.positions_distribution_by_chain || {})
+      .map(([id, v]) => ({ id, usd_value: num(v) })).filter(c => c.usd_value > 0.01);
+  }
 
   if (opts.tokens || opts.protocols) {
     const pos = await apiGet("zerion", `wallets/${address}/positions/`,
@@ -331,7 +350,7 @@ async function fetchZerion(address, opts, signal) {
   // Scam airdrops with made-up prices are "unverified" but still counted in
   // Zerion's portfolio totals. When filtering them out, recompute totals and
   // the chain breakdown from the (verified) position data instead.
-  if (opts.verifiedOnly && (opts.tokens || opts.protocols)) {
+  if (recompute) {
     out.tokens = out.tokens.filter(t => t.verified !== false);
     const chainTotals = {};
     const add = (chain, v) => { chainTotals[chain] = (chainTotals[chain] || 0) + v; };
@@ -468,6 +487,7 @@ async function retryFailed() {
 }
 
 async function execute(indices, opts) {
+  consecutive429 = 0;   // give a fresh run / retry a clean shot at the breaker
   state.running = true; state.cancelled = false;
   abortCtl = new AbortController();
   $("runBtn").disabled = true; $("cancelBtn").disabled = false;
