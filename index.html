@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crypto Address Balance Querier</title>
+<style>
+  :root {
+    --bg: #0f1420; --panel: #171e2e; --panel2: #1d2638; --border: #2a3550;
+    --text: #e8ecf4; --muted: #93a0b8; --accent: #4f8cff; --accent2: #3a6fd8;
+    --ok: #3ecf8e; --warn: #f5b83d; --err: #f06a6a; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 24px 20px 60px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+          padding: 16px; margin-bottom: 16px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  input[type=text], input[type=password], input[type=number], textarea, select {
+    width: 100%; background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 10px; font-family: var(--mono); font-size: 13px;
+  }
+  input:focus, textarea:focus, select:focus { outline: 1px solid var(--accent); }
+  textarea { resize: vertical; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
+  .row > div { flex: 1; min-width: 160px; }
+  .row > .narrow { flex: 0 0 150px; min-width: 150px; }
+  .checks { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; }
+  .checks label { display: flex; align-items: center; gap: 6px; color: var(--text);
+                  font-size: 13px; margin: 0; cursor: pointer; }
+  button { background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+           padding: 9px 18px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  button:hover { background: var(--accent2); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.secondary { background: var(--panel2); border: 1px solid var(--border); color: var(--text); font-weight: 500; }
+  button.secondary:hover { border-color: var(--accent); }
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+  .progress { flex: 1; min-width: 200px; height: 8px; background: var(--panel2);
+              border-radius: 4px; overflow: hidden; }
+  .progress > div { height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+  .status { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .totals { font-size: 15px; margin-top: 12px; }
+  .totals b { color: var(--ok); font-size: 18px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: -1px; }
+  .tabs button { background: var(--panel2); border: 1px solid var(--border); border-bottom: 0;
+                 border-radius: 8px 8px 0 0; color: var(--muted); font-weight: 500; padding: 8px 16px; }
+  .tabs button.active { background: var(--panel); color: var(--text); }
+  .tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 0 8px 8px 8px;
+               background: var(--panel); max-height: 480px; overflow-y: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left;
+           white-space: nowrap; max-width: 420px; overflow: hidden; text-overflow: ellipsis; }
+  th { position: sticky; top: 0; background: var(--panel2); color: var(--muted); font-weight: 600; z-index: 1; }
+  td.num, th.num { text-align: right; font-family: var(--mono); }
+  td.addr { font-family: var(--mono); }
+  td.err { color: var(--err); }
+  .csvbox { margin-top: 12px; }
+  .csvbox textarea { height: 140px; font-size: 12px; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px;
+           background: var(--panel2); border: 1px solid var(--border); color: var(--muted); margin-left: 8px; }
+  .flash { color: var(--ok); font-size: 13px; margin-left: 6px; opacity: 0; transition: opacity .3s; }
+  .flash.show { opacity: 1; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Crypto Address Balance Querier</h1>
+  <p class="sub">Paste EVM wallet addresses, fetch cross-chain balances, tokens, DeFi positions and NFT values, and export the results as CSV.</p>
+
+  <div class="card">
+    <div class="row">
+      <div class="narrow">
+        <label for="provider">Data provider</label>
+        <select id="provider">
+          <option value="zerion" selected>Zerion (free key)</option>
+          <option value="debank">DeBank Pro (paid)</option>
+          <option value="demo">Demo (fake data)</option>
+        </select>
+      </div>
+      <div>
+        <label for="key" id="keyLabel">API key</label>
+        <input type="password" id="key" placeholder="Your API key" autocomplete="off">
+      </div>
+      <div class="narrow">
+        <label>&nbsp;</label>
+        <div class="checks" style="margin-top:0">
+          <label><input type="checkbox" id="rememberKey"> Remember key</label>
+        </div>
+      </div>
+    </div>
+    <div class="hint" id="providerHint"></div>
+  </div>
+
+  <div class="card">
+    <label for="addresses">Wallet addresses (one per line — commas, spaces and extra text like labels after the address are tolerated)</label>
+    <textarea id="addresses" rows="8" placeholder="0x1234...abcd
+0x5678...ef01  my trading wallet
+0x9abc...2345"></textarea>
+    <div class="hint" id="addrInfo"></div>
+
+    <div class="checks">
+      <label><input type="checkbox" id="optTokens" checked> Wallet tokens</label>
+      <label><input type="checkbox" id="optProtocols" checked> DeFi positions</label>
+      <label><input type="checkbox" id="optNfts"> NFT value (extra request per wallet)</label>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <div class="narrow">
+        <label for="topN">Top assets per wallet</label>
+        <input type="number" id="topN" value="10" min="1" max="100">
+      </div>
+      <div class="narrow">
+        <label for="minUsd">Ignore assets under (USD)</label>
+        <input type="number" id="minUsd" value="1" min="0" step="0.5">
+      </div>
+      <div class="narrow">
+        <label for="concurrency">Parallel wallets</label>
+        <input type="number" id="concurrency" value="2" min="1" max="10">
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button id="runBtn">Fetch balances</button>
+      <button id="cancelBtn" class="secondary" disabled>Cancel</button>
+      <div class="progress"><div id="progressBar"></div></div>
+      <span class="status" id="status">Idle</span>
+    </div>
+    <div class="totals" id="totals" hidden>Grand total: <b id="grandTotal"></b> <span class="badge" id="walletCount"></span></div>
+  </div>
+
+  <div class="card" style="padding-top:12px">
+    <div class="tabs">
+      <button id="tabSummary" class="active">Summary (per wallet)</button>
+      <button id="tabDetail">Details (per asset)</button>
+    </div>
+    <div class="tablewrap"><table id="resultTable"><thead></thead><tbody></tbody></table></div>
+
+    <div class="csvbox">
+      <div class="toolbar" style="margin-top:0">
+        <button id="copyBtn" class="secondary">Copy CSV</button>
+        <button id="downloadBtn" class="secondary">Download CSV</button>
+        <span class="flash" id="copyFlash">Copied!</span>
+      </div>
+      <textarea id="csvOut" readonly spellcheck="false" placeholder="CSV output appears here after a run."></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- state ---------- */
+const $ = id => document.getElementById(id);
+const state = { rows: [], running: false, cancelled: false, activeTab: "summary", lastOpts: null };
+
+const PROVIDER_INFO = {
+  zerion: {
+    label: "Zerion API key",
+    hint: 'Free API key — sign up at <a href="https://developers.zerion.io" target="_blank" rel="noopener">developers.zerion.io</a> (email signup only, no payment or KYC). One portfolio request covers all chains at once. The key is only sent to your local server, which forwards it to Zerion.',
+  },
+  debank: {
+    label: "DeBank AccessKey",
+    hint: 'Paid API — requires buying units at <a href="https://cloud.debank.com" target="_blank" rel="noopener">cloud.debank.com</a>. Deepest DeFi/NFT coverage. The key is only sent to your local server, which forwards it to DeBank.',
+  },
+  demo: {
+    label: "API key (not needed in demo mode)",
+    hint: "Demo mode generates deterministic fake data so you can try the whole flow — no API calls, no key, no cost.",
+  },
+};
+
+/* ---------- helpers ---------- */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const fmtUsd = v => v == null ? "" : v.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: v >= 1000 ? 0 : 2 });
+const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+const round2 = v => Math.round(num(v) * 100) / 100;
+const roundAmt = v => { v = num(v); return v >= 1000 ? Math.round(v) : Math.round(v * 10000) / 10000; };
+
+function csvEscape(v) {
+  const s = String(v ?? "");
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function toCsv(header, rows) {
+  return [header, ...rows].map(r => r.map(csvEscape).join(",")).join("\r\n");
+}
+
+function parseAddresses(text) {
+  const seen = new Set(), valid = [], invalid = [];
+  for (const rawLine of text.split(/\n/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    const m = line.match(/0x[a-fA-F0-9]{40}/);
+    if (m) {
+      const addr = m[0].toLowerCase();
+      if (!seen.has(addr)) { seen.add(addr); valid.push(addr); }
+    } else {
+      invalid.push(line);
+    }
+  }
+  return { valid, invalid };
+}
+
+/* ---------- API ---------- */
+async function apiGet(provider, path, params, signal) {
+  let url = `/api/${provider}/${path}`;
+  const qs = new URLSearchParams(params).toString();
+  if (qs) url += "?" + qs;
+  let lastErr = "";
+  for (let attempt = 0; attempt < 5; attempt++) {
+    let res;
+    try {
+      res = await fetch(url, { headers: { "X-Access-Key": $("key").value.trim() }, signal });
+    } catch (e) {
+      if (e.name === "AbortError") throw e;
+      lastErr = "network error: " + e.message;
+      await sleep(1000 * 2 ** attempt);
+      continue;
+    }
+    if (res.status === 202) {              // Zerion: portfolio still indexing — retry shortly
+      lastErr = "still indexing (HTTP 202)";
+      await sleep(2500 * (attempt + 1));
+      continue;
+    }
+    if (res.ok) return res.json();
+    const body = await res.text().catch(() => "");
+    if (res.status === 429 || res.status >= 500) {   // rate limit / transient — back off and retry
+      lastErr = "HTTP " + res.status;
+      await sleep(1500 * 2 ** attempt);
+      continue;
+    }
+    throw new Error("HTTP " + res.status + (body ? ": " + body.slice(0, 160) : ""));
+  }
+  throw new Error("gave up after retries (" + lastErr + ")");
+}
+
+/* ---------- demo mode: deterministic fake data per address ---------- */
+function mulberry32(seed) {
+  return function () {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function demoData(address) {
+  let seed = 0;
+  for (const c of address) seed = (seed * 31 + c.charCodeAt(0)) | 0;
+  const rnd = mulberry32(seed);
+  const chains = ["eth", "arb", "op", "base", "bsc", "matic"].filter(() => rnd() > 0.35);
+  if (!chains.length) chains.push("eth");
+  const toks = [["ETH", 3500], ["USDC", 1], ["USDT", 1], ["WBTC", 97000], ["ARB", 0.7], ["OP", 1.6], ["LINK", 22], ["UNI", 9]];
+  const tokens = toks.filter(() => rnd() > 0.4).map(([sym, price]) => {
+    const amount = rnd() * (sym === "USDC" || sym === "USDT" ? 50000 : 30);
+    return { chain: chains[Math.floor(rnd() * chains.length)], symbol: sym, name: sym, price, amount, verified: true };
+  });
+  const protos = [["Aave V3"], ["Lido"], ["Uniswap V3"], ["GMX"]];
+  const positions = protos.filter(() => rnd() > 0.55).map(([name]) => {
+    const chain = chains[Math.floor(rnd() * chains.length)];
+    const usd = rnd() * 40000;
+    return { protocol: name, chain, kind: "deposit", usd, supply: "ETH " + roundAmt(usd / 3500) };
+  });
+  const walletUsd = tokens.reduce((s, t) => s + t.price * t.amount, 0);
+  const defiUsd = positions.reduce((s, p) => s + p.usd, 0);
+  const per = (walletUsd + defiUsd) / chains.length;
+  return {
+    totalUsd: walletUsd + defiUsd,
+    chainList: chains.map(c => ({ id: c, usd_value: per * (0.5 + rnd()) })),
+    tokens, positions,
+    nftCount: Math.floor(rnd() * 12),
+    nftUsd: rnd() * 3000,
+    nftByChain: { eth: rnd() * 3000 },
+  };
+}
+
+/* ---------- provider fetchers: all normalize to the same row shape ---------- */
+async function fetchZerion(address, opts, signal) {
+  const portfolio = await apiGet("zerion", `wallets/${address}/portfolio`,
+    { currency: "usd", "filter[positions]": "no_filter" }, signal);
+  const attrs = portfolio?.data?.attributes || {};
+  const byType = attrs.positions_distribution_by_type || {};
+  const byChain = attrs.positions_distribution_by_chain || {};
+
+  const out = {
+    totalUsd: num(attrs.total?.positions),
+    walletUsd: num(byType.wallet),
+    chainList: Object.entries(byChain).map(([id, v]) => ({ id, usd_value: num(v) }))
+      .filter(c => c.usd_value > 0.01),
+    tokens: [], positions: [], nftCount: null, nftUsd: null, nftByChain: {},
+  };
+  out.defiUsd = round2(out.totalUsd - out.walletUsd);
+
+  if (opts.tokens || opts.protocols) {
+    const pos = await apiGet("zerion", `wallets/${address}/positions/`,
+      { currency: "usd", "filter[positions]": "no_filter", "filter[trash]": "only_non_trash", sort: "-value" }, signal);
+    for (const p of pos?.data || []) {
+      const a = p.attributes || {};
+      const chain = p.relationships?.chain?.data?.id || "";
+      const usd = num(a.value);
+      if (a.position_type === "wallet") {
+        out.tokens.push({ chain, symbol: a.fungible_info?.symbol || a.name || "?",
+          name: a.fungible_info?.name || "", price: num(a.price), amount: num(a.quantity?.float),
+          usd, verified: a.fungible_info?.flags?.verified !== false });
+      } else {
+        out.positions.push({ protocol: a.protocol || a.application_metadata?.name || "unknown",
+          chain, kind: a.position_type || a.name || "", usd,
+          supply: `${a.fungible_info?.symbol || "?"} ${roundAmt(a.quantity?.float)}` });
+      }
+    }
+  }
+
+  if (opts.nfts) {
+    const nft = await apiGet("zerion", `wallets/${address}/nft-portfolio`, { currency: "usd" }, signal);
+    const nftByChain = nft?.data?.attributes?.positions_distribution_by_chain || {};
+    out.nftByChain = nftByChain;
+    out.nftUsd = Object.values(nftByChain).reduce((s, v) => s + num(v), 0);
+    out.nftCount = null; // Zerion's portfolio endpoint reports value, not item counts
+  }
+  return out;
+}
+
+async function fetchDebank(address, opts, signal) {
+  const jobs = [apiGet("debank", "user/total_balance", { id: address }, signal)];
+  jobs.push(opts.tokens ? apiGet("debank", "user/all_token_list", { id: address, is_all: "false" }, signal) : Promise.resolve([]));
+  jobs.push(opts.protocols ? apiGet("debank", "user/all_complex_protocol_list", { id: address }, signal) : Promise.resolve([]));
+  jobs.push(opts.nfts ? apiGet("debank", "user/all_nft_list", { id: address, is_all: "false" }, signal) : Promise.resolve([]));
+  const [total, tokens, protocols, nfts] = await Promise.all(jobs);
+
+  const out = {
+    totalUsd: num(total?.total_usd_value),
+    chainList: (total?.chain_list || []).map(c => ({ id: c.id, usd_value: num(c.usd_value) }))
+      .filter(c => c.usd_value > 0.01),
+    tokens: (Array.isArray(tokens) ? tokens : []).map(t => ({
+      chain: t.chain, symbol: t.symbol || t.name || "?", name: t.name || "",
+      price: num(t.price), amount: num(t.amount), usd: num(t.price) * num(t.amount),
+      verified: t.is_verified !== false })),
+    positions: [], nftByChain: {},
+  };
+  for (const p of (Array.isArray(protocols) ? protocols : [])) {
+    for (const item of p.portfolio_item_list || []) {
+      const usd = num(item.stats?.net_usd_value);
+      const supply = (item.detail?.supply_token_list || [])
+        .map(t => `${t.symbol} ${roundAmt(t.amount)}`).join(" + ");
+      out.positions.push({ protocol: p.name, chain: p.chain, kind: item.name || "", usd, supply });
+    }
+  }
+  const nftList = Array.isArray(nfts) ? nfts : [];
+  out.nftCount = opts.nfts ? nftList.reduce((s, n) => s + (num(n.amount) || 1), 0) : null;
+  out.nftUsd = opts.nfts ? nftList.reduce((s, n) => s + num(n.usd_price), 0) : null;
+  out.walletUsd = out.tokens.reduce((s, t) => s + t.usd, 0);
+  out.defiUsd = out.positions.reduce((s, p) => s + p.usd, 0);
+  return out;
+}
+
+async function fetchWallet(address, opts, signal) {
+  const row = { address, ok: false, error: "", totalUsd: 0, walletUsd: 0, defiUsd: 0,
+                chainList: [], tokens: [], positions: [], nftCount: null, nftUsd: null, nftByChain: {} };
+  try {
+    let data;
+    if (opts.provider === "demo") {
+      await sleep(150 + Math.random() * 350);
+      data = demoData(address);
+      data.walletUsd = data.tokens.reduce((s, t) => s + t.price * t.amount, 0);
+      data.defiUsd = data.positions.reduce((s, p) => s + p.usd, 0);
+      if (!opts.tokens) data.tokens = [];
+      if (!opts.protocols) data.positions = [];
+      if (!opts.nfts) { data.nftCount = null; data.nftUsd = null; data.nftByChain = {}; }
+    } else if (opts.provider === "zerion") {
+      data = await fetchZerion(address, opts, signal);
+    } else {
+      data = await fetchDebank(address, opts, signal);
+    }
+    Object.assign(row, data);
+
+    row.tokens = row.tokens
+      .map(t => ({ ...t, usd: num(t.usd ?? t.price * t.amount) }))
+      .filter(t => t.usd >= opts.minUsd)
+      .sort((a, b) => b.usd - a.usd);
+    row.positions = row.positions
+      .filter(p => Math.abs(p.usd) >= opts.minUsd)
+      .sort((a, b) => Math.abs(b.usd) - Math.abs(a.usd));
+    if (!opts.tokens) row.tokens = [];
+    if (!opts.protocols) row.positions = [];
+    row.ok = true;
+  } catch (e) {
+    row.error = e.name === "AbortError" ? "cancelled" : (e.message || String(e));
+  }
+  return row;
+}
+
+/* ---------- run ---------- */
+let abortCtl = null;
+
+function currentOpts() {
+  return {
+    provider: $("provider").value,
+    tokens: $("optTokens").checked,
+    protocols: $("optProtocols").checked,
+    nfts: $("optNfts").checked,
+    topN: Math.max(1, +$("topN").value || 10),
+    minUsd: Math.max(0, +$("minUsd").value || 0),
+  };
+}
+
+async function run() {
+  const { valid, invalid } = parseAddresses($("addresses").value);
+  if (!valid.length) { $("addrInfo").textContent = "No valid EVM addresses (0x + 40 hex chars) found."; return; }
+  $("addrInfo").textContent = `${valid.length} address(es) queued` + (invalid.length ? ` — ${invalid.length} line(s) skipped (no valid address)` : "");
+
+  const opts = currentOpts();
+  if (opts.provider !== "demo" && !$("key").value.trim()) {
+    $("status").textContent = "Enter an API key or switch to Demo mode.";
+    $("key").focus();
+    return;
+  }
+  if ($("rememberKey").checked && opts.provider !== "demo") {
+    localStorage.setItem("key_" + opts.provider, $("key").value.trim());
+  }
+
+  state.rows = valid.map(() => null);
+  state.lastOpts = opts;
+  state.running = true; state.cancelled = false;
+  abortCtl = new AbortController();
+  $("runBtn").disabled = true; $("cancelBtn").disabled = false;
+  $("totals").hidden = true;
+  let done = 0;
+  const update = () => {
+    $("progressBar").style.width = (done / valid.length * 100) + "%";
+    $("status").textContent = state.cancelled ? `Cancelled (${done}/${valid.length})` : `Fetching ${done}/${valid.length} wallets…`;
+  };
+  update();
+
+  const concurrency = Math.min(Math.max(1, +$("concurrency").value || 2), 10);
+  let next = 0;
+  async function worker() {
+    while (next < valid.length && !state.cancelled) {
+      const i = next++;
+      state.rows[i] = await fetchWallet(valid[i], opts, abortCtl.signal);
+      done++; update(); render();
+    }
+  }
+  await Promise.all(Array.from({ length: concurrency }, worker));
+
+  state.running = false;
+  $("runBtn").disabled = false; $("cancelBtn").disabled = true;
+  const okRows = state.rows.filter(r => r && r.ok);
+  const failed = state.rows.filter(r => r && !r.ok).length;
+  $("status").textContent = (state.cancelled ? "Cancelled — " : "Done — ") +
+    `${okRows.length} ok` + (failed ? `, ${failed} failed` : "");
+  const grand = okRows.reduce((s, r) => s + r.totalUsd, 0);
+  $("grandTotal").textContent = fmtUsd(grand);
+  $("walletCount").textContent = okRows.length + " wallets";
+  $("totals").hidden = false;
+  render();
+}
+
+/* ---------- CSV + table building ---------- */
+function summaryHeaderCols(opts) {
+  const cols = ["address", "total_usd", "wallet_tokens_usd", "defi_usd"];
+  if (opts.nfts) cols.push("nft_count", "nft_value_usd");
+  cols.push("chains", "chain_breakdown_usd", `top_${opts.topN}_assets`, "top_defi_positions", "error");
+  return cols;
+}
+function summaryRowCols(r, opts) {
+  if (!r.ok) {
+    const cols = [r.address, "", "", ""];
+    if (opts.nfts) cols.push("", "");
+    return cols.concat(["", "", "", "", r.error]);
+  }
+  const chainBreakdown = [...r.chainList].sort((a, b) => b.usd_value - a.usd_value)
+    .map(c => `${c.id}:${round2(c.usd_value)}`).join(" | ");
+  const topAssets = r.tokens.slice(0, opts.topN)
+    .map(t => `${t.symbol} ${roundAmt(t.amount)} ($${round2(t.usd)}) [${t.chain}]`).join("; ");
+  const topDefi = r.positions.slice(0, opts.topN)
+    .map(p => `${p.protocol} ${p.kind} ($${round2(p.usd)}) [${p.chain}]`).join("; ");
+  const cols = [r.address, round2(r.totalUsd), round2(r.walletUsd), round2(r.defiUsd)];
+  if (opts.nfts) cols.push(r.nftCount ?? "", r.nftUsd == null ? "" : round2(r.nftUsd));
+  return cols.concat([r.chainList.length, chainBreakdown, topAssets, topDefi, ""]);
+}
+
+const DETAIL_HEADER = ["address", "type", "chain", "symbol_or_name", "protocol", "amount", "price_usd", "usd_value", "notes"];
+function detailRows(r, opts) {
+  if (!r.ok) return [[r.address, "error", "", "", "", "", "", "", r.error]];
+  const rows = [];
+  for (const t of r.tokens) {
+    rows.push([r.address, "token", t.chain, t.symbol, "",
+               roundAmt(t.amount), round2(t.price), round2(t.usd),
+               t.verified === false ? "unverified token" : ""]);
+  }
+  for (const p of r.positions) {
+    rows.push([r.address, "defi", p.chain, p.supply || p.kind, p.protocol, "", "",
+               round2(p.usd), p.kind]);
+  }
+  if (opts.nfts) {
+    for (const [chain, v] of Object.entries(r.nftByChain || {})) {
+      if (num(v) > 0.01) rows.push([r.address, "nft", chain, "NFT holdings", "", r.nftCount ?? "", "", round2(v), "estimated value"]);
+    }
+  }
+  return rows;
+}
+
+function buildCsv(opts) {
+  const rows = state.rows.filter(Boolean);
+  if (state.activeTab === "summary") {
+    return toCsv(summaryHeaderCols(opts), rows.map(r => summaryRowCols(r, opts)));
+  }
+  return toCsv(DETAIL_HEADER, rows.flatMap(r => detailRows(r, opts)));
+}
+
+function render() {
+  const opts = state.lastOpts || currentOpts();
+  const table = $("resultTable");
+  const rows = state.rows.filter(Boolean);
+
+  const numeric = new Set(["total_usd", "wallet_tokens_usd", "defi_usd", "nft_count",
+                           "nft_value_usd", "chains", "amount", "price_usd", "usd_value"]);
+  const header = state.activeTab === "summary" ? summaryHeaderCols(opts) : DETAIL_HEADER;
+  table.querySelector("thead").innerHTML = "<tr>" + header.map(h =>
+    `<th class="${numeric.has(h) ? "num" : ""}">${h}</th>`).join("") + "</tr>";
+
+  const dataRows = state.activeTab === "summary"
+    ? rows.map(r => ({ cols: summaryRowCols(r, opts), err: !r.ok }))
+    : rows.flatMap(r => detailRows(r, opts).map(cols => ({ cols, err: !r.ok })));
+
+  table.querySelector("tbody").innerHTML = dataRows.map(({ cols, err }) =>
+    "<tr>" + cols.map((c, i) => {
+      const cls = [numeric.has(header[i]) ? "num" : "", i === 0 ? "addr" : "",
+                   err && header[i] === "error" ? "err" : ""].filter(Boolean).join(" ");
+      const text = String(c ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+      return `<td class="${cls}" title="${text.replace(/"/g, "&quot;")}">${text}</td>`;
+    }).join("") + "</tr>").join("");
+
+  $("csvOut").value = rows.length ? buildCsv(opts) : "";
+}
+
+/* ---------- wiring ---------- */
+function applyProviderUi() {
+  const p = $("provider").value;
+  $("keyLabel").textContent = PROVIDER_INFO[p].label;
+  $("providerHint").innerHTML = PROVIDER_INFO[p].hint;
+  $("key").disabled = p === "demo";
+  if (p !== "demo") {
+    const saved = localStorage.getItem("key_" + p);
+    $("key").value = saved || "";
+    $("rememberKey").checked = !!saved;
+  }
+}
+$("provider").addEventListener("change", applyProviderUi);
+applyProviderUi();
+
+$("runBtn").addEventListener("click", () => run().catch(e => {
+  $("status").textContent = "Error: " + e.message;
+  $("runBtn").disabled = false; $("cancelBtn").disabled = true; state.running = false;
+}));
+$("cancelBtn").addEventListener("click", () => { state.cancelled = true; abortCtl?.abort(); });
+$("tabSummary").addEventListener("click", () => { state.activeTab = "summary"; $("tabSummary").classList.add("active"); $("tabDetail").classList.remove("active"); render(); });
+$("tabDetail").addEventListener("click", () => { state.activeTab = "detail"; $("tabDetail").classList.add("active"); $("tabSummary").classList.remove("active"); render(); });
+
+$("copyBtn").addEventListener("click", async () => {
+  const text = $("csvOut").value;
+  if (!text) return;
+  try { await navigator.clipboard.writeText(text); }
+  catch { $("csvOut").select(); document.execCommand("copy"); }
+  $("copyFlash").classList.add("show");
+  setTimeout(() => $("copyFlash").classList.remove("show"), 1500);
+});
+
+$("downloadBtn").addEventListener("click", () => {
+  const text = $("csvOut").value;
+  if (!text) return;
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+  const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `wallet_balances_${state.activeTab}_${stamp}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+$("addresses").addEventListener("input", () => {
+  const { valid, invalid } = parseAddresses($("addresses").value);
+  $("addrInfo").textContent = valid.length || invalid.length
+    ? `${valid.length} valid address(es)` + (invalid.length ? `, ${invalid.length} line(s) without a valid address` : "")
+    : "";
+});
+
+$("rememberKey").addEventListener("change", e => {
+  const p = $("provider").value;
+  if (!e.target.checked && p !== "demo") localStorage.removeItem("key_" + p);
+});
+</script>
+</body>
+</html>
