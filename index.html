@@ -107,6 +107,7 @@
       <label><input type="checkbox" id="optTokens" checked> Wallet tokens</label>
       <label><input type="checkbox" id="optProtocols" checked> DeFi positions</label>
       <label><input type="checkbox" id="optNfts"> NFT value (extra request per wallet)</label>
+      <label title="Drops tokens the provider hasn't verified (usually scam airdrops with fake prices). With Zerion, totals and chain breakdown are recomputed from verified positions."><input type="checkbox" id="optVerified" checked> Verified tokens only</label>
     </div>
 
     <div class="row" style="margin-top:12px">
@@ -312,6 +313,24 @@ async function fetchZerion(address, opts, signal) {
     }
   }
 
+  // Scam airdrops with made-up prices are "unverified" but still counted in
+  // Zerion's portfolio totals. When filtering them out, recompute totals and
+  // the chain breakdown from the (verified) position data instead.
+  if (opts.verifiedOnly && (opts.tokens || opts.protocols)) {
+    out.tokens = out.tokens.filter(t => t.verified !== false);
+    const chainTotals = {};
+    const add = (chain, v) => { chainTotals[chain] = (chainTotals[chain] || 0) + v; };
+    out.walletUsd = out.tokens.reduce((s, t) => (add(t.chain, t.usd), s + t.usd), 0);
+    out.defiUsd = out.positions.reduce((s, p) => {
+      const v = p.kind === "loan" ? -p.usd : p.usd;
+      add(p.chain, v);
+      return s + v;
+    }, 0);
+    out.totalUsd = out.walletUsd + out.defiUsd;
+    out.chainList = Object.entries(chainTotals).map(([id, v]) => ({ id, usd_value: v }))
+      .filter(c => c.usd_value > 0.01);
+  }
+
   if (opts.nfts) {
     const nft = await apiGet("zerion", `wallets/${address}/nft-portfolio`, { currency: "usd" }, signal);
     const nftByChain = nft?.data?.attributes?.positions_distribution_by_chain || {};
@@ -377,6 +396,7 @@ async function fetchWallet(address, opts, signal) {
 
     row.tokens = row.tokens
       .map(t => ({ ...t, usd: num(t.usd ?? t.price * t.amount) }))
+      .filter(t => !opts.verifiedOnly || t.verified !== false)
       .filter(t => t.usd >= opts.minUsd)
       .sort((a, b) => b.usd - a.usd);
     row.positions = row.positions
@@ -400,6 +420,7 @@ function currentOpts() {
     tokens: $("optTokens").checked,
     protocols: $("optProtocols").checked,
     nfts: $("optNfts").checked,
+    verifiedOnly: $("optVerified").checked,
     topN: Math.max(1, +$("topN").value || 10),
     minUsd: Math.max(0, +$("minUsd").value || 0),
   };

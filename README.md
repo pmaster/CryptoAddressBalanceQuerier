@@ -66,6 +66,12 @@ them directly.
   addresses via its API, but the GUI currently validates EVM format only.
 - "Ignore assets under (USD)" filters dust from token/position lists; it
   doesn't change the wallet totals reported by the provider.
+- **"Verified tokens only" (default on)** drops tokens the provider hasn't
+  verified — typically scam airdrops with fabricated prices that can inflate a
+  wallet by hundreds of thousands of fake dollars. With Zerion, totals and the
+  per-chain breakdown are recomputed from verified positions (loans subtracted),
+  since Zerion's own portfolio total includes unverified tokens. Untick it to
+  see the raw provider numbers.
 - Zerion returns HTTP 202 while it indexes a wallet it hasn't seen before;
   the client retries automatically for a couple of minutes.
 - Airdrop eligibility isn't exposed by any of these portfolio APIs; per-project
