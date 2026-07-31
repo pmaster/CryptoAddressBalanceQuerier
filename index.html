@@ -128,6 +128,7 @@
     <div class="toolbar">
       <button id="runBtn">Fetch balances</button>
       <button id="cancelBtn" class="secondary" disabled>Cancel</button>
+      <button id="retryBtn" class="secondary" hidden>Retry failed</button>
       <div class="progress"><div id="progressBar"></div></div>
       <span class="status" id="status">Idle</span>
     </div>
@@ -161,10 +162,12 @@ const state = { rows: [], running: false, cancelled: false, activeTab: "summary"
 
 const PROVIDER_INFO = {
   zerion: {
+    rateMs: 600,   // free tier throttles hard; ~1.7 requests/sec globally
     label: "Zerion API key",
     hint: 'Free API key — sign up at <a href="https://developers.zerion.io" target="_blank" rel="noopener">developers.zerion.io</a> (email signup only, no payment or KYC). One portfolio request covers all chains at once. The key is only sent to your local server, which forwards it to Zerion.',
   },
   debank: {
+    rateMs: 120,
     label: "DeBank AccessKey",
     hint: 'Paid API — requires buying units at <a href="https://cloud.debank.com" target="_blank" rel="noopener">cloud.debank.com</a>. Deepest DeFi/NFT coverage. The key is only sent to your local server, which forwards it to DeBank.',
   },
@@ -206,36 +209,48 @@ function parseAddresses(text) {
 }
 
 /* ---------- API ---------- */
+// Global pacing: all requests (including retries) share one schedule so
+// concurrent wallet workers can't burst past the provider's rate limit.
+let nextSlot = 0;
+async function rateSlot(provider) {
+  const gap = PROVIDER_INFO[provider]?.rateMs ?? 300;
+  const now = Date.now();
+  const t = Math.max(now, nextSlot);
+  nextSlot = t + gap;
+  if (t > now) await sleep(t - now);
+}
+
 async function apiGet(provider, path, params, signal) {
   let url = `/api/${provider}/${path}`;
   const qs = new URLSearchParams(params).toString();
   if (qs) url += "?" + qs;
-  let lastErr = "";
-  for (let attempt = 0; attempt < 5; attempt++) {
+  let transient = 0, indexing = 0;
+  while (true) {
+    await rateSlot(provider);
     let res;
     try {
       res = await fetch(url, { headers: { "X-Access-Key": $("key").value.trim() }, signal });
     } catch (e) {
       if (e.name === "AbortError") throw e;
-      lastErr = "network error: " + e.message;
-      await sleep(1000 * 2 ** attempt);
+      if (++transient > 6) throw new Error("network error after retries: " + e.message);
+      await sleep(Math.min(30000, 1000 * 2 ** transient));
       continue;
     }
-    if (res.status === 202) {              // Zerion: portfolio still indexing — retry shortly
-      lastErr = "still indexing (HTTP 202)";
-      await sleep(2500 * (attempt + 1));
+    if (res.status === 202) {   // Zerion is indexing a first-seen wallet; can take a few minutes
+      if (++indexing > 24) throw new Error("wallet still indexing on Zerion's side — use Retry failed in a minute");
+      await sleep(8000);
       continue;
     }
     if (res.ok) return res.json();
-    const body = await res.text().catch(() => "");
     if (res.status === 429 || res.status >= 500) {   // rate limit / transient — back off and retry
-      lastErr = "HTTP " + res.status;
-      await sleep(1500 * 2 ** attempt);
+      if (++transient > 8) throw new Error("gave up after retries (HTTP " + res.status + ")");
+      const ra = Number(res.headers.get("Retry-After"));
+      await sleep(ra > 0 ? ra * 1000 : Math.min(30000, 2000 * 2 ** transient));
       continue;
     }
+    const body = await res.text().catch(() => "");
     throw new Error("HTTP " + res.status + (body ? ": " + body.slice(0, 160) : ""));
   }
-  throw new Error("gave up after retries (" + lastErr + ")");
 }
 
 /* ---------- demo mode: deterministic fake data per address ---------- */
@@ -441,25 +456,36 @@ async function run() {
     localStorage.setItem("key_" + opts.provider, $("key").value.trim());
   }
 
+  state.addresses = valid;
   state.rows = valid.map(() => null);
   state.lastOpts = opts;
+  await execute(valid.map((_, i) => i), opts);
+}
+
+async function retryFailed() {
+  const indices = state.rows.map((r, i) => (!r || !r.ok) ? i : -1).filter(i => i >= 0);
+  if (indices.length && state.lastOpts) await execute(indices, state.lastOpts);
+}
+
+async function execute(indices, opts) {
   state.running = true; state.cancelled = false;
   abortCtl = new AbortController();
   $("runBtn").disabled = true; $("cancelBtn").disabled = false;
+  $("retryBtn").hidden = true;
   $("totals").hidden = true;
   let done = 0;
   const update = () => {
-    $("progressBar").style.width = (done / valid.length * 100) + "%";
-    $("status").textContent = state.cancelled ? `Cancelled (${done}/${valid.length})` : `Fetching ${done}/${valid.length} wallets…`;
+    $("progressBar").style.width = (done / indices.length * 100) + "%";
+    $("status").textContent = state.cancelled ? `Cancelled (${done}/${indices.length})` : `Fetching ${done}/${indices.length} wallets…`;
   };
   update();
 
   const concurrency = Math.min(Math.max(1, +$("concurrency").value || 2), 10);
   let next = 0;
   async function worker() {
-    while (next < valid.length && !state.cancelled) {
-      const i = next++;
-      state.rows[i] = await fetchWallet(valid[i], opts, abortCtl.signal);
+    while (next < indices.length && !state.cancelled) {
+      const i = indices[next++];
+      state.rows[i] = await fetchWallet(state.addresses[i], opts, abortCtl.signal);
       done++; update(); render();
     }
   }
@@ -468,9 +494,11 @@ async function run() {
   state.running = false;
   $("runBtn").disabled = false; $("cancelBtn").disabled = true;
   const okRows = state.rows.filter(r => r && r.ok);
-  const failed = state.rows.filter(r => r && !r.ok).length;
+  const failed = state.rows.length - okRows.length;
   $("status").textContent = (state.cancelled ? "Cancelled — " : "Done — ") +
     `${okRows.length} ok` + (failed ? `, ${failed} failed` : "");
+  $("retryBtn").textContent = `Retry failed (${failed})`;
+  $("retryBtn").hidden = !failed;
   const grand = okRows.reduce((s, r) => s + r.totalUsd, 0);
   $("grandTotal").textContent = fmtUsd(grand);
   $("walletCount").textContent = okRows.length + " wallets";
@@ -577,6 +605,10 @@ $("runBtn").addEventListener("click", () => run().catch(e => {
   $("runBtn").disabled = false; $("cancelBtn").disabled = true; state.running = false;
 }));
 $("cancelBtn").addEventListener("click", () => { state.cancelled = true; abortCtl?.abort(); });
+$("retryBtn").addEventListener("click", () => retryFailed().catch(e => {
+  $("status").textContent = "Error: " + e.message;
+  $("runBtn").disabled = false; $("cancelBtn").disabled = true; state.running = false;
+}));
 $("tabSummary").addEventListener("click", () => { state.activeTab = "summary"; $("tabSummary").classList.add("active"); $("tabDetail").classList.remove("active"); render(); });
 $("tabDetail").addEventListener("click", () => { state.activeTab = "detail"; $("tabDetail").classList.add("active"); $("tabSummary").classList.remove("active"); render(); });
 
