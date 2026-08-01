@@ -28,12 +28,16 @@ with no key and no API calls.
 | **DeBank Pro** | Paid — prepaid "units" at [cloud.debank.com](https://cloud.debank.com) | The deepest DeFi/protocol coverage and NFT item lists | 2–4 |
 
 Both are supported; pick in the GUI's provider dropdown. Zerion's free tier
-allows **2,000 requests/day at 3 RPS**. With "Verified tokens only" on
-(default), the tool needs just **1 request per wallet** (2 with NFT value), so
-50 wallets is a small fraction of the daily quota. Requests are globally paced
-and a circuit breaker stops the run early on persistent 429s — retrying into
-an exhausted quota only burns more of it. If you ever want DeBank's deeper
-protocol detail, buy units and switch the dropdown — no code changes.
+advertises 2,000 requests/day at 3 RPS, but in practice it behaves like a
+token bucket with a slow refill (roughly 1–2 requests/minute sustained after
+an initial burst). The client adapts: all requests share a global schedule
+whose gap widens on each 429 and narrows again on success, so large batches
+complete unattended — just slowly (think ~1 hour for 50+ wallets on a drained
+free key, minutes on a fresh one). With "Verified tokens only" on (default),
+only **1 request per wallet** is needed (2 with NFT value). A watchdog aborts
+the run with a clear message only if nothing has succeeded for 20 minutes.
+If you ever want DeBank's deeper protocol detail and fast bulk queries, buy
+units and switch the dropdown — no code changes.
 
 Other options considered and why they're not wired in:
 

@@ -209,31 +209,44 @@ function parseAddresses(text) {
 }
 
 /* ---------- API ---------- */
-// Global pacing: all requests (including retries) share one schedule so
-// concurrent wallet workers can't burst past the provider's rate limit.
+// Adaptive global pacing. Free tiers often enforce their daily caps as a
+// slow token-bucket refill (Zerion's 2,000/day behaves like ~1.4 req/min
+// sustained after an initial burst), so a fixed request gap either wastes
+// the burst or slams into 429s. All requests share one schedule; the gap
+// widens on every 429 and slowly narrows on success.
+const pacing = {
+  zerion: { base: 1200, max: 60000, cur: 1200 },
+  debank: { base: 120, max: 5000, cur: 120 },
+  demo:   { base: 0, max: 0, cur: 0 },
+};
 let nextSlot = 0;
 async function rateSlot(provider) {
-  const gap = PROVIDER_INFO[provider]?.rateMs ?? 300;
+  const gap = pacing[provider]?.cur ?? 300;
   const now = Date.now();
   const t = Math.max(now, nextSlot);
   nextSlot = t + gap;
   if (t > now) await sleep(t - now);
 }
+function paceFeedback(provider, ok) {
+  const p = pacing[provider];
+  if (!p) return;
+  p.cur = ok ? Math.max(p.base, p.cur * 0.95) : Math.min(p.max, p.cur * 1.8);
+}
 
-// Circuit breaker: retrying 429s consumes the very quota that caused them
-// (e.g. Zerion free tier: 2,000 requests/day). After enough consecutive
-// 429s across the whole run, fail remaining requests fast instead.
-let consecutive429 = 0;
-const QUOTA_MSG = "persistent rate limiting — provider quota likely exhausted " +
-  "(Zerion free tier: 2,000 requests/day). Use Retry failed after the quota resets.";
+// Watchdog instead of a retry cap: keep retrying 429s at the adaptive pace,
+// but if NOTHING has succeeded for this long, the quota is truly gone.
+const STARVED_MS = 20 * 60 * 1000;
+let lastSuccessAt = 0;
+const QUOTA_MSG = "no request has succeeded in 20 minutes — provider quota likely " +
+  "exhausted (Zerion free tier: 2,000 requests/day). Use Retry failed after it resets.";
 
 async function apiGet(provider, path, params, signal) {
   let url = `/api/${provider}/${path}`;
   const qs = new URLSearchParams(params).toString();
   if (qs) url += "?" + qs;
-  let transient = 0, throttled = 0, indexing = 0;
+  let transient = 0, indexing = 0;
   while (true) {
-    if (consecutive429 >= 12) throw new Error(QUOTA_MSG);
+    if (Date.now() - lastSuccessAt > STARVED_MS) throw new Error(QUOTA_MSG);
     await rateSlot(provider);
     let res;
     try {
@@ -245,14 +258,13 @@ async function apiGet(provider, path, params, signal) {
       continue;
     }
     if (res.status === 429) {
-      consecutive429++; throttled++;
-      if (consecutive429 >= 12) throw new Error(QUOTA_MSG);
-      if (throttled > 4) throw new Error("gave up after retries (HTTP 429)");
+      paceFeedback(provider, false);
       const ra = Number(res.headers.get("Retry-After"));
-      await sleep(ra > 0 ? ra * 1000 : Math.min(30000, 3000 * 2 ** throttled));
-      continue;
+      if (ra > 0) await sleep(ra * 1000);
+      continue;   // bounded by the starvation watchdog, not an attempt count
     }
-    consecutive429 = 0;
+    paceFeedback(provider, true);
+    lastSuccessAt = Date.now();
     if (res.status === 202) {   // Zerion is indexing a first-seen wallet; can take a few minutes
       if (++indexing > 24) throw new Error("wallet still indexing on Zerion's side — use Retry failed in a minute");
       await sleep(8000);
@@ -487,7 +499,7 @@ async function retryFailed() {
 }
 
 async function execute(indices, opts) {
-  consecutive429 = 0;   // give a fresh run / retry a clean shot at the breaker
+  lastSuccessAt = Date.now();   // fresh run / retry gets a clean watchdog window
   state.running = true; state.cancelled = false;
   abortCtl = new AbortController();
   $("runBtn").disabled = true; $("cancelBtn").disabled = false;
@@ -496,9 +508,12 @@ async function execute(indices, opts) {
   let done = 0;
   const update = () => {
     $("progressBar").style.width = (done / indices.length * 100) + "%";
-    $("status").textContent = state.cancelled ? `Cancelled (${done}/${indices.length})` : `Fetching ${done}/${indices.length} wallets…`;
+    const gap = pacing[opts.provider]?.cur || 0;
+    const paceNote = gap > 4000 ? ` — throttled by provider, pacing ~${Math.round(gap / 1000)}s/request` : "";
+    $("status").textContent = state.cancelled ? `Cancelled (${done}/${indices.length})` : `Fetching ${done}/${indices.length} wallets…${paceNote}`;
   };
   update();
+  const ticker = setInterval(update, 5000);
 
   const concurrency = Math.min(Math.max(1, +$("concurrency").value || 2), 10);
   let next = 0;
@@ -510,6 +525,7 @@ async function execute(indices, opts) {
     }
   }
   await Promise.all(Array.from({ length: concurrency }, worker));
+  clearInterval(ticker);
 
   state.running = false;
   $("runBtn").disabled = false; $("cancelBtn").disabled = true;
