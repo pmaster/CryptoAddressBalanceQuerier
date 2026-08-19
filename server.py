@@ -38,7 +38,7 @@ PROVIDERS = {
     ),
     "zerion": (
         "https://api.zerion.io/v1/",
-        [re.compile(rf"^wallets/{ADDR}/(portfolio|positions/|nft-portfolio)$")],
+        [re.compile(rf"^wallets/{ADDR}/(portfolio|positions/|nft-portfolio|transactions/)$")],
     ),
 }
 
