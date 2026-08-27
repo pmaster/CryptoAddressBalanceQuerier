@@ -213,6 +213,8 @@ def main():
     ap.add_argument("wallets", nargs="?", default=os.path.join(HERE, "wallets_sp4.txt"))
     ap.add_argument("--min-usd", type=float, default=50.0)
     ap.add_argument("--prefix", default="sp4")
+    ap.add_argument("--balances-only", action="store_true",
+                    help="skip transaction history — 1 request per wallet instead of many")
     args = ap.parse_args()
 
     key = os.environ.get("ZERION_KEY")
@@ -227,20 +229,27 @@ def main():
     for label, addr in wallets:
         print(f"[{label}] {addr}", flush=True)
         bal = fetch_balance(addr, key)
-        inbound, truncated = fetch_inbounds(addr, key, args.min_usd, known)
+        if args.balances_only:
+            inbound, truncated = [], False
+            print(f"    balance ${bal['total_usd']:,.2f}", flush=True)
+        else:
+            inbound, truncated = fetch_inbounds(addr, key, args.min_usd, known)
         total_in = sum(r["usd_value"] for r in inbound)
         ext_in = sum(r["usd_value"] for r in inbound if r["external_receive"] == "TRUE")
-        print(f"    balance ${bal['total_usd']:,.2f} | inbounds {len(inbound)} "
-              f"(${total_in:,.2f}, external ${ext_in:,.2f})"
-              + ("  [TRUNCATED]" if truncated else ""), flush=True)
+        if not args.balances_only:
+            print(f"    balance ${bal['total_usd']:,.2f} | inbounds {len(inbound)} "
+                  f"(${total_in:,.2f}, external ${ext_in:,.2f})"
+                  + ("  [TRUNCATED]" if truncated else ""), flush=True)
 
-        bal_rows.append({
-            "wallet": label, "address": addr, **bal,
-            "inbound_count": len(inbound),
-            "inbound_total_usd": round(total_in, 2),
-            "external_receive_usd": round(ext_in, 2),
-            "history_truncated": "TRUE" if truncated else "FALSE",
-        })
+        row = {"wallet": label, "address": addr, **bal}
+        if not args.balances_only:      # otherwise these would all read as zero
+            row.update({
+                "inbound_count": len(inbound),
+                "inbound_total_usd": round(total_in, 2),
+                "external_receive_usd": round(ext_in, 2),
+                "history_truncated": "TRUE" if truncated else "FALSE",
+            })
+        bal_rows.append(row)
         for r in inbound:
             in_rows.append({"wallet": label, "address": addr, **r})
 
@@ -249,6 +258,12 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(bal_rows[0].keys()))
         w.writeheader()
         w.writerows(bal_rows)
+
+    print(f"\nwrote {bal_path} ({len(bal_rows)} wallets)")
+    print(f"total balances: ${sum(r['total_usd'] for r in bal_rows):,.2f}")
+
+    if args.balances_only:      # leave any existing inbounds export untouched
+        return
 
     in_path = os.path.join(OUT_DIR, f"{args.prefix}_inbounds.csv")
     fields = ["wallet", "address", "datetime_utc", "date_utc", "operation_type",
@@ -259,9 +274,7 @@ def main():
         w.writeheader()
         w.writerows(in_rows)
 
-    print(f"\nwrote {bal_path} ({len(bal_rows)} wallets)")
     print(f"wrote {in_path} ({len(in_rows)} inbound transfers)")
-    print(f"total balances: ${sum(r['total_usd'] for r in bal_rows):,.2f}")
     print(f"total inbounds: ${sum(r['usd_value'] for r in in_rows):,.2f}")
 
 
