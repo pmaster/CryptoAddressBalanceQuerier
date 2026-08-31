@@ -1,0 +1,15 @@
+wallet,address,total_usd,wallet_tokens_usd,defi_usd,chain_count,chain_breakdown,top_holdings,top_defi,inbound_count,inbound_total_usd,external_receive_usd,history_truncated
+SP4-9,0x28aa29d3cb526d4d8e9492bf42ed04aff45388f5,10417.44,10417.44,0.0,2,"ethereum:10,415.21 | arbitrum:2.22","PYUSD 10,411.6279 ($10,405.96) [ethereum]; ETH 0.0037 ($9.25) [ethereum]; ETH 0.0009 ($2.22) [arbitrum]",,3,45656.94,30451.31,FALSE
+SP4-10,0x2acfb4445a3936e3951802245d8820d35e51d597,18450.69,18450.69,0.0,1,"ethereum:18,450.69","USDC 18,444.0000 ($18,441.05) [ethereum]; ETH 0.0039 ($9.64) [ethereum]",,2,18432.0,18432.0,FALSE
+SP4-12,0x55b2c1c111b7cfb8863c2002b77d283269182c1d,16187.03,16187.03,0.0,1,"ethereum:16,187.03","ETH 6.5521 ($16,187.03) [ethereum]",,1,16413.25,16413.25,FALSE
+SP4-13,0x709f75210f81eb736f0abcad0041d5e0016dcc1e,8214.62,8214.62,0.0,1,"ethereum:8,214.62","PYUSD 8,153.0070 ($8,150.90) [ethereum]; ETH 0.0258 ($63.72) [ethereum]",,2,16443.74,16443.74,FALSE
+SP4-14,0xfb63c32b75fff61fc8f1227c2d25a23f61900ca3,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-15,0x0c557ec72a2c99640651586ecfd04d5e55fea4d6,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-16,0x176dc7c6f438c45a51ca7566a63cddb183b5ab27,7840.27,7840.27,0.0,1,"ethereum:7,840.27","USDT 7,823.9319 ($7,820.25) [ethereum]; ETH 0.0081 ($20.02) [ethereum]",,1,7818.27,7818.27,FALSE
+SP4-17,0xae145656410a94864773384ebfc1cc5f17862f0a,9401.45,9401.45,0.0,1,"ethereum:9,401.45","USDT 9,396.5371 ($9,391.42) [ethereum]; ETH 0.0041 ($10.03) [ethereum]",,1,9392.49,9392.49,FALSE
+SP4-18,0x2e0b9a7ae2cf4622783ca2a3df9ea62b44a7400b,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-19,0xa55c56a3a656991fcfe66a73da2527a2b957a5ea,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-20,0x21749f9f2111662726acfda5699783789fb5dd22,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-21,0xdb5c1f4ddc0a2d815564db5f5e72ae76ad97f363,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-22,0x79c6cc78bc98bbfaf23ed93343638e2e5021fed9,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-23,0x1936d5e843d24aae8f924fec21115f5bd6d39ea4,0.0,0.0,0.0,0,,,,0,0,0,FALSE
