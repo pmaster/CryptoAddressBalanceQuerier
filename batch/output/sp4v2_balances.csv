@@ -1,0 +1,16 @@
+wallet,address,total_usd,wallet_tokens_usd,defi_usd,chain_count,chain_breakdown,top_holdings,top_defi,inbound_count,inbound_total_usd,external_receive_usd,history_truncated
+SP4-9,0x28aa29d3cb526d4d8e9492bf42ed04aff45388f5,5530.7,5530.7,0.0,2,"ethereum:5,528.53 | arbitrum:2.16","PYUSD 5,519.5128 ($5,519.52) [ethereum]; ETH 0.0037 ($9.02) [ethereum]; ETH 0.0009 ($2.16) [arbitrum]",,3,45656.94,30451.31,FALSE
+SP4-10,0x2acfb4445a3936e3951802245d8820d35e51d597,18458.29,18458.29,0.0,1,"ethereum:18,458.29","USDC 18,444.0000 ($18,448.90) [ethereum]; ETH 0.0039 ($9.39) [ethereum]",,2,18432.0,18432.0,FALSE
+SP4-11,0x8647f91ed8b655593bb53edc4044caa1871bda21,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-12,0x55b2c1c111b7cfb8863c2002b77d283269182c1d,15780.67,15780.67,0.0,1,"ethereum:15,780.67","ETH 6.5521 ($15,780.67) [ethereum]",,1,16413.25,16413.25,FALSE
+SP4-13,0x709f75210f81eb736f0abcad0041d5e0016dcc1e,8211.57,8211.57,0.0,1,"ethereum:8,211.57","PYUSD 8,153.0070 ($8,149.48) [ethereum]; ETH 0.0258 ($62.09) [ethereum]",,2,16443.74,16443.74,FALSE
+SP4-14,0xfb63c32b75fff61fc8f1227c2d25a23f61900ca3,8013.12,8013.12,0.0,1,"ethereum:8,013.12","ETH 3.3282 ($8,013.12) [ethereum]",,1,8243.37,8243.37,FALSE
+SP4-15,0x0c557ec72a2c99640651586ecfd04d5e55fea4d6,8640.4,8640.4,0.0,1,"ethereum:8,640.40","ETH 3.5888 ($8,640.40) [ethereum]",,1,8891.65,8891.65,FALSE
+SP4-16,0x176dc7c6f438c45a51ca7566a63cddb183b5ab27,7840.63,7840.63,0.0,1,"ethereum:7,840.63","USDT 7,823.9319 ($7,821.11) [ethereum]; ETH 0.0081 ($19.52) [ethereum]",,1,7818.27,7818.27,FALSE
+SP4-17,0xae145656410a94864773384ebfc1cc5f17862f0a,9406.36,9406.36,0.0,1,"ethereum:9,406.36","USDT 9,396.5371 ($9,396.58) [ethereum]; ETH 0.0041 ($9.78) [ethereum]",,1,9392.49,9392.49,FALSE
+SP4-18,0x2e0b9a7ae2cf4622783ca2a3df9ea62b44a7400b,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-19,0xa55c56a3a656991fcfe66a73da2527a2b957a5ea,6980.7,6980.7,0.0,1,"ethereum:6,980.70","ETH 2.8984 ($6,980.70) [ethereum]",,1,6999.65,6999.65,FALSE
+SP4-20,0x21749f9f2111662726acfda5699783789fb5dd22,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-21,0xdb5c1f4ddc0a2d815564db5f5e72ae76ad97f363,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-22,0x79c6cc78bc98bbfaf23ed93343638e2e5021fed9,0.0,0.0,0.0,0,,,,0,0,0,FALSE
+SP4-23,0x1936d5e843d24aae8f924fec21115f5bd6d39ea4,0.0,0.0,0.0,0,,,,0,0,0,FALSE
