@@ -8,10 +8,22 @@ than 'trade', so filtering by operation_type alone is not reliable.
 Either way it is not new money: the wallet already owned the value
 being swapped.
 
+Proximity in time and value alone is NOT enough to call something a
+swap: a busy wallet (an OTC desk, say) can send to one counterparty
+and separately receive from an unrelated one within the same window
+purely by coincidence, especially at higher transaction volume. The
+distinguishing signal that held up under testing is whether either
+counterparty is a smart contract (a DEX router, aggregator, or bridge)
+rather than a plain wallet (EOA) — genuine peer-to-peer transfers run
+EOA-to-EOA, while every swap/bridge mechanism observed here touched a
+contract on at least one leg. So a candidate match only counts as a
+swap leg if that holds too.
+
 This script pulls each wallet's full transaction history (in and out,
 all operation types) and flags an inbound transfer as a swap leg when
 an outbound transfer of comparable USD value from the same wallet
-occurred within SWAP_WINDOW_SECONDS beforehand. Genuine external
+occurred within SWAP_WINDOW_SECONDS beforehand AND either its
+recipient or the inbound's sender is a contract. Genuine external
 funding is what remains.
 
     ZERION_KEY=zk_... python3 batch/net_funding.py wallets.txt [--min-usd 50]
@@ -21,7 +33,9 @@ Writes batch/output/<prefix>_net_funding.csv and prints a summary.
 
 import argparse
 import csv
+import json
 import os
+import subprocess
 import sys
 import urllib.parse
 
@@ -31,6 +45,30 @@ from inbounds import api_get, read_wallets, is_verified, OUT_DIR   # noqa: E402
 MAX_PAGES = 20
 SWAP_WINDOW_SECONDS = 1800     # 30 min: covers multi-tx swap routes, not unrelated deposits
 SWAP_VALUE_TOLERANCE = 0.20    # 20%: covers slippage + fees on the swap leg
+ETH_RPC = "https://ethereum-rpc.publicnode.com"
+
+_contract_cache = {}
+
+
+def is_contract(address):
+    """True if `address` has on-chain bytecode (a contract, not a wallet)."""
+    if not address:
+        return False
+    address = address.lower()
+    if address in _contract_cache:
+        return _contract_cache[address]
+    payload = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "eth_getCode",
+                          "params": [address, "latest"]})
+    try:
+        out = subprocess.run(["curl", "-s", "-m", "20", "-X", "POST", ETH_RPC,
+                              "-H", "Content-Type: application/json", "--data", payload],
+                             capture_output=True, text=True, timeout=25).stdout
+        code = json.loads(out).get("result", "0x")
+    except Exception:
+        code = "0x"          # RPC hiccup: fail closed (treat as EOA, not a swap)
+    result = len(code) > 2
+    _contract_cache[address] = result
+    return result
 
 
 def parse_iso(s):
@@ -71,6 +109,7 @@ def fetch_all_transfers(address, key):
                     "token": fung.get("symbol") or "?",
                     "usd_value": float(value),
                     "sender": (tr.get("sender") or a.get("sent_from") or "").lower(),
+                    "recipient": (tr.get("recipient") or a.get("sent_to") or "").lower(),
                     "tx_hash": a.get("hash") or "",
                 })
         nxt = (res.get("links") or {}).get("next")
@@ -92,12 +131,15 @@ def net_funding(address, key, min_usd):
     for t in transfers:
         if t["direction"] != "in" or t["usd_value"] < min_usd:
             continue
-        is_swap = any(
-            o["token"] != t["token"]
+        candidates = [
+            o for o in outs
+            if o["token"] != t["token"]
             and 0 <= t["ts"] - o["ts"] <= SWAP_WINDOW_SECONDS
             and abs(o["usd_value"] - t["usd_value"]) <= SWAP_VALUE_TOLERANCE * max(o["usd_value"], t["usd_value"])
-            for o in outs
-        )
+        ]
+        # Timing + value proximity alone isn't enough — require a contract on
+        # at least one leg, or two coincidental peer transfers get misread as a swap.
+        is_swap = any(is_contract(o["recipient"]) or is_contract(t["sender"]) for o in candidates)
         (swaps if is_swap else genuine).append(t)
 
     return genuine, swaps
