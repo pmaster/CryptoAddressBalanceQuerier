@@ -38,8 +38,12 @@ MAX_PAGES = 20          # 100 transactions per page
 PAGE_SIZE = 100
 
 # Adaptive pacing: Zerion's free tier behaves like a slowly refilling bucket,
-# so widen the gap on every 429 and ease it back down on success.
-pace = {"gap": 0.4, "min": 0.25, "max": 60.0}
+# so widen the gap on every 429 and ease it back down on success. Override the
+# starting/floor gap with ZERION_MIN_GAP (seconds) to start conservative on a
+# day the quota is already running thin, instead of firing fast and reacting
+# to 429s only after they happen.
+_min_gap = float(os.environ.get("ZERION_MIN_GAP", "0.25"))
+pace = {"gap": max(0.4, _min_gap), "min": _min_gap, "max": 60.0}
 _next_slot = [0.0]
 
 
