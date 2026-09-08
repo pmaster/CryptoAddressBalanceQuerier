@@ -1,0 +1,2 @@
+wallet,address,total_usd,wallet_tokens_usd,defi_usd,chain_count,chain_breakdown,top_holdings,top_defi,inbound_count,inbound_total_usd,external_receive_usd,history_truncated
+BritanyStoddard,0x5c3e0eaa0c39e1940b4f82a53beace055586c96c,0.0,0.0,0.0,0,,,,6,23925.11,23925.11,FALSE
