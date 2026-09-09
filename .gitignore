@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+
+# OTC workbook copies: the Requests tab carries client emails; deliver via chat, do not commit
+batch/output/Inbound_OTC_Requests*.xlsx
