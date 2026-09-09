@@ -154,6 +154,7 @@ def fetch_transfers_since(address, key, since_ts=None):
                     "direction": tr.get("direction"),
                     "operation_type": a.get("operation_type", ""),
                     "token": fung.get("symbol") or "?",
+                    "amount": float(((tr.get("quantity") or {}).get("float")) or 0),
                     "usd_value": float(value),
                     "sender": (tr.get("sender") or a.get("sent_from") or "").lower(),
                     "recipient": (tr.get("recipient") or a.get("sent_to") or "").lower(),
