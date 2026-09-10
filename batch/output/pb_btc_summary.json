@@ -1,11 +1,11 @@
 {
- "btc_price_now": 79447,
+ "btc_price_now": 77248,
  "wallets": {
   "PB-9": {
    "label": "CG Payouts Test",
    "address": "bc1qzvewyf7gwuwu0wju68ypt2y7lzc3502qeuvx82",
    "balance_btc": 0.27221982,
-   "balance_usd": 21627.05,
+   "balance_usd": 21028.44,
    "total_funded_usd": 20125.72,
    "total_funded_btc": 0.27229123,
    "initial_funding_date_1k": "2026-05-30",
@@ -38,7 +38,7 @@
     {
      "utc": "2026-05-30T04:52:27+00:00",
      "ny": "2026-05-30 00:52:27",
-     "btc_price": 73444,
+     "btc_price": 73445,
      "txid": "7d21ef1087ae12508b9d7568f74cbb71daae97a2b71da43e10a81c3a55d87a98",
      "btc": 7e-05,
      "usd": 5.14,
@@ -53,18 +53,18 @@
    "label": "BTC RCPT 6 5 26",
    "address": "bc1qtwx375elyrvl696cgeg5exz5aww2xczucwskh0",
    "balance_btc": 0.36884829,
-   "balance_usd": 29303.89,
-   "total_funded_usd": 29930.52,
+   "balance_usd": 28492.79,
+   "total_funded_usd": 29930.97,
    "total_funded_btc": 0.4852879,
    "initial_funding_date_1k": "2026-06-05",
    "deposits": [
     {
      "utc": "2026-06-05T20:08:32+00:00",
      "ny": "2026-06-05 16:08:32",
-     "btc_price": 60287,
+     "btc_price": 60294,
      "txid": "b16f9e36729a6bc19bb1b1ef30d18b165e144163b20d9a23838c93d921ec35f4",
      "btc": 0.2746079,
-     "usd": 16555.29,
+     "usd": 16557.21,
      "from": [
       "bc1q73y9ft2rxtatygg8vlqysurz5n3v0u66e92zdu"
      ]
@@ -72,10 +72,10 @@
     {
      "utc": "2026-06-08T21:40:57+00:00",
      "ny": "2026-06-08 17:40:57",
-     "btc_price": 63486,
+     "btc_price": 63479,
      "txid": "a744fa39ecdcc167e7869d96adb5b68c7c5ed05e37c0fceb03f5683c61781820",
      "btc": 0.21068,
-     "usd": 13375.23,
+     "usd": 13373.76,
      "from": [
       "bc1qnlqdq0fh2wvlwl3k8ul7cqvdyuk4z2a05xzvl3"
      ]
@@ -118,7 +118,7 @@
    "label": "BTC RCPT 073126",
    "address": "bc1qh99g4ct43nqc7pr92hyj3vdceut5sngrputc47",
    "balance_btc": 0.08544413,
-   "balance_usd": 6788.28,
+   "balance_usd": 6600.39,
    "total_funded_usd": 17231.6,
    "total_funded_btc": 0.2724967,
    "initial_funding_date_1k": "2026-08-02",
@@ -149,19 +149,19 @@
     {
      "utc": "2026-08-07T13:46:47+00:00",
      "ny": "2026-08-07 09:46:47",
-     "btc_price": 65244,
+     "btc_price": 65243,
      "txid": "ef08a4cc9b435dc4ab56db45c27374c1240eca7f6eac3c3631e553f3f8244c82",
      "btc": 0.11215413,
-     "usd": 7317.38,
+     "usd": 7317.27,
      "to": "bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052"
     },
     {
      "utc": "2026-09-08T22:04:03+00:00",
      "ny": "2026-09-08 18:04:03",
-     "btc_price": 78484,
+     "btc_price": 78485,
      "txid": "7729d6a6854c2d6efebdb59b6e52e316fb98da0e77c9c859a296e86774d1998f",
      "btc": 0.05943,
-     "usd": 4664.3,
+     "usd": 4664.36,
      "to": "bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052"
     }
    ],
@@ -173,7 +173,7 @@
    "label": "BTC RCPT 260812",
    "address": "bc1qcpzuxunccc6mu4c088ed8wmtuy44453p6hj4kp",
    "balance_btc": 0.11860952,
-   "balance_usd": 9423.17,
+   "balance_usd": 9162.35,
    "total_funded_usd": 21458.89,
    "total_funded_btc": 0.33787677,
    "initial_funding_date_1k": "2026-08-12",
@@ -228,8 +228,8 @@
   "PB-13": {
    "label": "BTC RCPT 260831",
    "address": "bc1qu8ypxwm9xvlj4kruve58v27gjk20zgzhm8td5r",
-   "balance_btc": 0.10214157,
-   "balance_usd": 8114.84,
+   "balance_btc": 0.04431246,
+   "balance_usd": 3423.05,
    "total_funded_usd": 8133.07,
    "total_funded_btc": 0.10315,
    "initial_funding_date_1k": "2026-08-31",
@@ -250,10 +250,19 @@
     {
      "utc": "2026-09-08T20:56:03+00:00",
      "ny": "2026-09-08 16:56:03",
-     "btc_price": 78435,
+     "btc_price": 78453,
      "txid": "dfdae1ce913cc78f59b7152ffae42efcb76335969aa7719802b9cb937a1a6e6d",
      "btc": 0.001,
-     "usd": 78.44,
+     "usd": 78.45,
+     "to": "bc1q9r2e7n8e98arvu0jkrah404xztcd462hlhq4l9"
+    },
+    {
+     "utc": "2026-09-09T13:59:31+00:00",
+     "ny": "2026-09-09 09:59:31",
+     "btc_price": 79582,
+     "txid": "f341328f40ddc41abfff670f040dbb88799587ab844a34ce657735c890910be3",
+     "btc": 0.0578263,
+     "usd": 4601.93,
      "to": "bc1q9r2e7n8e98arvu0jkrah404xztcd462hlhq4l9"
     }
    ],

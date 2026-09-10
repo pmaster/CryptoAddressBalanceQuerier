@@ -26,3 +26,10 @@ If new wallets are added to either list in a future run, validate hex
 format and cross-check any addresses claimed to already be known
 against the prior mapping before trusting them (see git history for
 the false-positive/typo checks this caught previously).
+
+## Full runbook
+
+Setup, every command, standard sequences, output formats and troubleshooting live in
+`batch/RUNBOOK.md` (also embedded as section 7 of the generated context document,
+`python3 batch/build_context_doc.py`). One-off lookups: `batch/btc_address_report.py <bc1q...>`
+for any Bitcoin address; `batch/inbounds.py <one-line list> --min-usd 0` for any Ethereum address.
