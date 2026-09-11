@@ -1,11 +1,11 @@
 {
- "btc_price_now": 77248,
+ "btc_price_now": 77096,
  "wallets": {
   "PB-9": {
    "label": "CG Payouts Test",
    "address": "bc1qzvewyf7gwuwu0wju68ypt2y7lzc3502qeuvx82",
    "balance_btc": 0.27221982,
-   "balance_usd": 21028.44,
+   "balance_usd": 20987.06,
    "total_funded_usd": 20125.72,
    "total_funded_btc": 0.27229123,
    "initial_funding_date_1k": "2026-05-30",
@@ -38,7 +38,7 @@
     {
      "utc": "2026-05-30T04:52:27+00:00",
      "ny": "2026-05-30 00:52:27",
-     "btc_price": 73445,
+     "btc_price": 73444,
      "txid": "7d21ef1087ae12508b9d7568f74cbb71daae97a2b71da43e10a81c3a55d87a98",
      "btc": 7e-05,
      "usd": 5.14,
@@ -53,18 +53,18 @@
    "label": "BTC RCPT 6 5 26",
    "address": "bc1qtwx375elyrvl696cgeg5exz5aww2xczucwskh0",
    "balance_btc": 0.36884829,
-   "balance_usd": 28492.79,
-   "total_funded_usd": 29930.97,
+   "balance_usd": 28436.73,
+   "total_funded_usd": 29929.32,
    "total_funded_btc": 0.4852879,
    "initial_funding_date_1k": "2026-06-05",
    "deposits": [
     {
      "utc": "2026-06-05T20:08:32+00:00",
      "ny": "2026-06-05 16:08:32",
-     "btc_price": 60294,
+     "btc_price": 60288,
      "txid": "b16f9e36729a6bc19bb1b1ef30d18b165e144163b20d9a23838c93d921ec35f4",
      "btc": 0.2746079,
-     "usd": 16557.21,
+     "usd": 16555.56,
      "from": [
       "bc1q73y9ft2rxtatygg8vlqysurz5n3v0u66e92zdu"
      ]
@@ -118,7 +118,7 @@
    "label": "BTC RCPT 073126",
    "address": "bc1qh99g4ct43nqc7pr92hyj3vdceut5sngrputc47",
    "balance_btc": 0.08544413,
-   "balance_usd": 6600.39,
+   "balance_usd": 6587.4,
    "total_funded_usd": 17231.6,
    "total_funded_btc": 0.2724967,
    "initial_funding_date_1k": "2026-08-02",
@@ -149,10 +149,10 @@
     {
      "utc": "2026-08-07T13:46:47+00:00",
      "ny": "2026-08-07 09:46:47",
-     "btc_price": 65243,
+     "btc_price": 65236,
      "txid": "ef08a4cc9b435dc4ab56db45c27374c1240eca7f6eac3c3631e553f3f8244c82",
      "btc": 0.11215413,
-     "usd": 7317.27,
+     "usd": 7316.49,
      "to": "bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052"
     },
     {
@@ -173,7 +173,7 @@
    "label": "BTC RCPT 260812",
    "address": "bc1qcpzuxunccc6mu4c088ed8wmtuy44453p6hj4kp",
    "balance_btc": 0.11860952,
-   "balance_usd": 9162.35,
+   "balance_usd": 9144.32,
    "total_funded_usd": 21458.89,
    "total_funded_btc": 0.33787677,
    "initial_funding_date_1k": "2026-08-12",
@@ -196,10 +196,10 @@
     {
      "utc": "2026-08-14T17:42:40+00:00",
      "ny": "2026-08-14 13:42:40",
-     "btc_price": 63075,
+     "btc_price": 63071,
      "txid": "1427a787ff135040708dcdaf5d24a2879fb9d7dc1aabc42d5847563aedba5c31",
      "btc": 0.02,
-     "usd": 1261.5,
+     "usd": 1261.42,
      "to": "bc1qx4lt0an68runkshgs4dem3nnu7rs2pqluzpamh"
     },
     {
@@ -214,10 +214,10 @@
     {
      "utc": "2026-08-20T23:09:57+00:00",
      "ny": "2026-08-20 19:09:57",
-     "btc_price": 72659,
+     "btc_price": 72665,
      "txid": "d45b70b969d48128eb0d2823d80602ec224b01c94a2f20db73a8ae64bdf08a96",
      "btc": 0.086121,
-     "usd": 6257.47,
+     "usd": 6257.98,
      "to": "bc1qx4lt0an68runkshgs4dem3nnu7rs2pqluzpamh"
     }
    ],
@@ -229,7 +229,7 @@
    "label": "BTC RCPT 260831",
    "address": "bc1qu8ypxwm9xvlj4kruve58v27gjk20zgzhm8td5r",
    "balance_btc": 0.04431246,
-   "balance_usd": 3423.05,
+   "balance_usd": 3416.31,
    "total_funded_usd": 8133.07,
    "total_funded_btc": 0.10315,
    "initial_funding_date_1k": "2026-08-31",
@@ -250,10 +250,10 @@
     {
      "utc": "2026-09-08T20:56:03+00:00",
      "ny": "2026-09-08 16:56:03",
-     "btc_price": 78453,
+     "btc_price": 78435,
      "txid": "dfdae1ce913cc78f59b7152ffae42efcb76335969aa7719802b9cb937a1a6e6d",
      "btc": 0.001,
-     "usd": 78.45,
+     "usd": 78.44,
      "to": "bc1q9r2e7n8e98arvu0jkrah404xztcd462hlhq4l9"
     },
     {
@@ -269,6 +269,102 @@
    "recipients": [
     "bc1q9r2e7n8e98arvu0jkrah404xztcd462hlhq4l9"
    ]
+  },
+  "PB-14": {
+   "label": "",
+   "address": "bc1q2k0fy3tg5c0p9fu337djerqw2q8f07lsg4fnw4",
+   "balance_btc": 0.0,
+   "balance_usd": 0.0,
+   "total_funded_usd": 0,
+   "total_funded_btc": 0,
+   "initial_funding_date_1k": null,
+   "deposits": [],
+   "sends": [],
+   "recipients": []
+  },
+  "PB-15": {
+   "label": "",
+   "address": "bc1qn3gme4075trn6dq2m59euy3xwxg572jeup9ecl",
+   "balance_btc": 0.0,
+   "balance_usd": 0.0,
+   "total_funded_usd": 0,
+   "total_funded_btc": 0,
+   "initial_funding_date_1k": null,
+   "deposits": [],
+   "sends": [],
+   "recipients": []
+  },
+  "PB-16": {
+   "label": "",
+   "address": "bc1qgj5l92eez62vkp0qjmrdp0yxfs2jjglldca5j3",
+   "balance_btc": 0.0,
+   "balance_usd": 0.0,
+   "total_funded_usd": 0,
+   "total_funded_btc": 0,
+   "initial_funding_date_1k": null,
+   "deposits": [],
+   "sends": [],
+   "recipients": []
+  },
+  "PB-17": {
+   "label": "",
+   "address": "bc1qtdx9ccx232x7yk8muvvt38ckzxwh2wkx4t5vjl",
+   "balance_btc": 0.0,
+   "balance_usd": 0.0,
+   "total_funded_usd": 0,
+   "total_funded_btc": 0,
+   "initial_funding_date_1k": null,
+   "deposits": [],
+   "sends": [],
+   "recipients": []
+  },
+  "PB-18": {
+   "label": "",
+   "address": "bc1q4meqw22u7ewxgms0en9y4cx2lj4m276a7qh0tc",
+   "balance_btc": 0.0,
+   "balance_usd": 0.0,
+   "total_funded_usd": 0,
+   "total_funded_btc": 0,
+   "initial_funding_date_1k": null,
+   "deposits": [],
+   "sends": [],
+   "recipients": []
+  },
+  "PB-19": {
+   "label": "",
+   "address": "bc1qxpsxzem2dq93w8g0pnpyuhy0qfuykl5uxcw7f7",
+   "balance_btc": 0.0,
+   "balance_usd": 0.0,
+   "total_funded_usd": 0,
+   "total_funded_btc": 0,
+   "initial_funding_date_1k": null,
+   "deposits": [],
+   "sends": [],
+   "recipients": []
+  },
+  "PB-20": {
+   "label": "",
+   "address": "bc1q2aacvrslnz3r08jxe0lmlhahsqnc3mwmksq3wk",
+   "balance_btc": 0.0,
+   "balance_usd": 0.0,
+   "total_funded_usd": 0,
+   "total_funded_btc": 0,
+   "initial_funding_date_1k": null,
+   "deposits": [],
+   "sends": [],
+   "recipients": []
+  },
+  "PB-21": {
+   "label": "",
+   "address": "bc1qqwuvtnc3atnz80lamj6kchheg3qtufk4umy9c8",
+   "balance_btc": 0.0,
+   "balance_usd": 0.0,
+   "total_funded_usd": 0,
+   "total_funded_btc": 0,
+   "initial_funding_date_1k": null,
+   "deposits": [],
+   "sends": [],
+   "recipients": []
   }
  }
 }

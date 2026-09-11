@@ -1,0 +1,14 @@
+# PB (PayPal-bound Bitcoin) wallets: tag,address[,label]
+PB-9,bc1qzvewyf7gwuwu0wju68ypt2y7lzc3502qeuvx82,CG Payouts Test
+PB-10,bc1qtwx375elyrvl696cgeg5exz5aww2xczucwskh0,BTC RCPT 6 5 26
+PB-11,bc1qh99g4ct43nqc7pr92hyj3vdceut5sngrputc47,BTC RCPT 073126
+PB-12,bc1qcpzuxunccc6mu4c088ed8wmtuy44453p6hj4kp,BTC RCPT 260812
+PB-13,bc1qu8ypxwm9xvlj4kruve58v27gjk20zgzhm8td5r,BTC RCPT 260831
+PB-14,bc1q2k0fy3tg5c0p9fu337djerqw2q8f07lsg4fnw4
+PB-15,bc1qn3gme4075trn6dq2m59euy3xwxg572jeup9ecl
+PB-16,bc1qgj5l92eez62vkp0qjmrdp0yxfs2jjglldca5j3
+PB-17,bc1qtdx9ccx232x7yk8muvvt38ckzxwh2wkx4t5vjl
+PB-18,bc1q4meqw22u7ewxgms0en9y4cx2lj4m276a7qh0tc
+PB-19,bc1qxpsxzem2dq93w8g0pnpyuhy0qfuykl5uxcw7f7
+PB-20,bc1q2aacvrslnz3r08jxe0lmlhahsqnc3mwmksq3wk
+PB-21,bc1qqwuvtnc3atnz80lamj6kchheg3qtufk4umy9c8

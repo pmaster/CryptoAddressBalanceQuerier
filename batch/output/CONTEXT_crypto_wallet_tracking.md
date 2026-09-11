@@ -1,6 +1,6 @@
 # Crypto Wallet Tracking — Full Context Handoff
 
-*Generated 2026-09-10 from the repo's data files. Balances are snapshots dated per section; run "Update crypto funds UCF" for fresh numbers.*
+*Generated 2026-09-11 from the repo's data files. Balances are snapshots dated per section; run "Update crypto funds UCF" for fresh numbers.*
 
 **Sharing note:** this document contains client names and wallet addresses (already in the operational sheet) but no API keys and no client emails.
 
@@ -126,11 +126,11 @@ Numbered PB-9…PB-13 (nothing below 9 exists yet). As of **2026-09-09**; USD fo
 
 | Tag | Label | Address | Client (custodian) | Sends to | Funded | Sent | Holds |
 |---|---|---|---|---|---:|---:|---:|
-| PB-9 | CG Payouts Test | `bc1qzvewyf7gwuwu0wju68ypt2y7lzc3502qeuvx82` | — | `bc1qfg5jved2ezsx3rx4y9542gzlneryrz7pq7589n` | $20,125.72 (0.27229123 BTC) | $5.14 | $21,028.44 (0.27221982 BTC) |
-| PB-10 | BTC RCPT 6 5 26 | `bc1qtwx375elyrvl696cgeg5exz5aww2xczucwskh0` | — | `bc1qs6qz4sgy44s23w32ah07ms4rphshk5knxzlw67` | $29,930.97 (0.48528790 BTC) | $7,375.16 | $28,492.79 (0.36884829 BTC) |
-| PB-11 | BTC RCPT 073126 | `bc1qh99g4ct43nqc7pr92hyj3vdceut5sngrputc47` | Britany Stoddard (Henry) | `bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052` | $17,231.60 (0.27249670 BTC) | $12,979.80 | $6,600.39 (0.08544413 BTC) |
-| PB-12 | BTC RCPT 260812 | `bc1qcpzuxunccc6mu4c088ed8wmtuy44453p6hj4kp` | Jennifer Simpson (Kyle) | `bc1qx4lt0an68runkshgs4dem3nnu7rs2pqluzpamh` | $21,458.89 (0.33787677 BTC) | $15,265.55 | $9,162.35 (0.11860952 BTC) |
-| PB-13 | BTC RCPT 260831 | `bc1qu8ypxwm9xvlj4kruve58v27gjk20zgzhm8td5r` | Robert Caro (Sahil) | `bc1q9r2e7n8e98arvu0jkrah404xztcd462hlhq4l9` | $8,133.07 (0.10315000 BTC) | $4,680.38 | $3,423.05 (0.04431246 BTC) |
+| PB-9 | CG Payouts Test | `bc1qzvewyf7gwuwu0wju68ypt2y7lzc3502qeuvx82` | — | `bc1qfg5jved2ezsx3rx4y9542gzlneryrz7pq7589n` | $20,125.72 (0.27229123 BTC) | $5.14 | $20,987.06 (0.27221982 BTC) |
+| PB-10 | BTC RCPT 6 5 26 | `bc1qtwx375elyrvl696cgeg5exz5aww2xczucwskh0` | — | `bc1qs6qz4sgy44s23w32ah07ms4rphshk5knxzlw67` | $29,929.32 (0.48528790 BTC) | $7,375.16 | $28,436.73 (0.36884829 BTC) |
+| PB-11 | BTC RCPT 073126 | `bc1qh99g4ct43nqc7pr92hyj3vdceut5sngrputc47` | Britany Stoddard (Henry) | `bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052` | $17,231.60 (0.27249670 BTC) | $12,979.02 | $6,587.40 (0.08544413 BTC) |
+| PB-12 | BTC RCPT 260812 | `bc1qcpzuxunccc6mu4c088ed8wmtuy44453p6hj4kp` | Jennifer Simpson (Kyle) | `bc1qx4lt0an68runkshgs4dem3nnu7rs2pqluzpamh` | $21,458.89 (0.33787677 BTC) | $15,265.98 | $9,144.32 (0.11860952 BTC) |
+| PB-13 | BTC RCPT 260831 | `bc1qu8ypxwm9xvlj4kruve58v27gjk20zgzhm8td5r` | Robert Caro (Sahil) | `bc1q9r2e7n8e98arvu0jkrah404xztcd462hlhq4l9` | $8,133.07 (0.10315000 BTC) | $4,680.37 | $3,416.31 (0.04431246 BTC) |
 
 Notes on the PB rows:
 - **PB-11 → Britany Stoddard**: its destination is her registered BTC deposit address in the workbook's Requests tab (see §5).
@@ -144,10 +144,10 @@ Per-transaction detail (NY time):
 **PB-9** (CG Payouts Test)
 - IN  2026-05-29 19:35:47 — 0.00131000 BTC = $96.14 @ $73,393 from `bc1q4lly7ls46w0rjqrf6g0p8zlr55mytmz3vu4src`
 - IN  2026-05-30 14:38:15 — 0.27098123 BTC = $20,029.58 @ $73,915 from `bc1qdd38095l53tkfd3k9qjgcpdjvrwxwx5kj90u5s`
-- OUT 2026-05-30 00:52:27 — 0.00007000 BTC = $5.14 @ $73,445 to `bc1qfg5jved2ezsx3rx4y9542gzlneryrz7pq7589n`
+- OUT 2026-05-30 00:52:27 — 0.00007000 BTC = $5.14 @ $73,444 to `bc1qfg5jved2ezsx3rx4y9542gzlneryrz7pq7589n`
 
 **PB-10** (BTC RCPT 6 5 26)
-- IN  2026-06-05 16:08:32 — 0.27460790 BTC = $16,557.21 @ $60,294 from `bc1q73y9ft2rxtatygg8vlqysurz5n3v0u66e92zdu`
+- IN  2026-06-05 16:08:32 — 0.27460790 BTC = $16,555.56 @ $60,288 from `bc1q73y9ft2rxtatygg8vlqysurz5n3v0u66e92zdu`
 - IN  2026-06-08 17:40:57 — 0.21068000 BTC = $13,373.76 @ $63,479 from `bc1qnlqdq0fh2wvlwl3k8ul7cqvdyuk4z2a05xzvl3`
 - OUT 2026-07-30 14:44:12 — 0.00100000 BTC = $64.82 @ $64,818 to `bc1qs6qz4sgy44s23w32ah07ms4rphshk5knxzlw67`
 - OUT 2026-07-30 23:15:04 — 0.01543257 BTC = $991.34 @ $64,237 to `bc1qs6qz4sgy44s23w32ah07ms4rphshk5knxzlw67`
@@ -156,18 +156,18 @@ Per-transaction detail (NY time):
 **PB-11** (BTC RCPT 073126)
 - IN  2026-08-02 14:30:58 — 0.27249670 BTC = $17,231.60 @ $63,236 from `bc1qg52nfjt33pynklyeaf29mv953sqphh38zhnc3h`
 - OUT 2026-08-06 14:32:21 — 0.01546000 BTC = $998.17 @ $64,565 to `bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052`
-- OUT 2026-08-07 09:46:47 — 0.11215413 BTC = $7,317.27 @ $65,243 to `bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052`
+- OUT 2026-08-07 09:46:47 — 0.11215413 BTC = $7,316.49 @ $65,236 to `bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052`
 - OUT 2026-09-08 18:04:03 — 0.05943000 BTC = $4,664.36 @ $78,485 to `bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052`
 
 **PB-12** (BTC RCPT 260812)
 - IN  2026-08-12 21:07:54 — 0.33787677 BTC = $21,458.89 @ $63,511 from `bc1q8n8zqexa07n3e4nvqlfp9j7lg6erk38wk0esym`
-- OUT 2026-08-14 13:42:40 — 0.02000000 BTC = $1,261.50 @ $63,075 to `bc1qx4lt0an68runkshgs4dem3nnu7rs2pqluzpamh`
+- OUT 2026-08-14 13:42:40 — 0.02000000 BTC = $1,261.42 @ $63,071 to `bc1qx4lt0an68runkshgs4dem3nnu7rs2pqluzpamh`
 - OUT 2026-08-19 13:11:16 — 0.11313500 BTC = $7,746.58 @ $68,472 to `bc1qx4lt0an68runkshgs4dem3nnu7rs2pqluzpamh`
-- OUT 2026-08-20 19:09:57 — 0.08612100 BTC = $6,257.47 @ $72,659 to `bc1qx4lt0an68runkshgs4dem3nnu7rs2pqluzpamh`
+- OUT 2026-08-20 19:09:57 — 0.08612100 BTC = $6,257.98 @ $72,665 to `bc1qx4lt0an68runkshgs4dem3nnu7rs2pqluzpamh`
 
 **PB-13** (BTC RCPT 260831)
 - IN  2026-08-31 17:55:56 — 0.10315000 BTC = $8,133.07 @ $78,847 from `bc1qm8y3c04e67u6e3utm2gx2sqjq09quejpdfm9y8`
-- OUT 2026-09-08 16:56:03 — 0.00100000 BTC = $78.45 @ $78,453 to `bc1q9r2e7n8e98arvu0jkrah404xztcd462hlhq4l9`
+- OUT 2026-09-08 16:56:03 — 0.00100000 BTC = $78.44 @ $78,435 to `bc1q9r2e7n8e98arvu0jkrah404xztcd462hlhq4l9`
 - OUT 2026-09-09 09:59:31 — 0.05782630 BTC = $4,601.93 @ $79,582 to `bc1q9r2e7n8e98arvu0jkrah404xztcd462hlhq4l9`
 
 ## 4. Outbound sends recorded per SP4 wallet (NY time)
@@ -210,12 +210,12 @@ Two addresses, both fully swept to $0 as of 2026-09-09. Everything she received 
   - 2026-09-04 01:41 UTC — 5,519.51 PYUSD ($5,522.12) from SP4-9
   - 2026-09-06 21:36 UTC — 4,383.34 PYUSD ($4,383.27) from SP4-21
   - 2026-09-07 16:32 UTC — 4,323.63 PYUSD ($4,323.06) from SP4-22
-- **BTC `bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052`** — 0.18704413 BTC = $12,979.80 at receipt-time prices, all from PB-11:
+- **BTC `bc1qr6gjt789g48v99z8r920lpw77kkkcherkhq052`** — 0.18704413 BTC = $12,979.02 at receipt-time prices, all from PB-11:
   - 2026-08-06 14:32:21 NY — 0.01546000 BTC ($998.17 @ $64,565)
-  - 2026-08-07 09:46:47 NY — 0.11215413 BTC ($7,317.27 @ $65,243)
+  - 2026-08-07 09:46:47 NY — 0.11215413 BTC ($7,316.49 @ $65,236)
   - 2026-09-08 18:04:03 NY — 0.05943000 BTC ($4,664.36 @ $78,485)
 
-**Total received: ~$36,904.91** at time of receipt (the BTC portion is worth ~$14.8k at the 9/9 price of ~$79k).
+**Total received: ~$36,904.13** at time of receipt (the BTC portion is worth ~$14.8k at the 9/9 price of ~$79k).
 
 ## 7. How to run everything (runbook)
 
@@ -255,6 +255,7 @@ One wallet per line, `label,address`; lines starting with `#` are ignored; addre
 | `wallets_sp4_9_50.txt` | SP4-9 … SP4-50 (42 wallets) |
 | `wallets_sp4_9_25.txt` | SP4-9 … SP4-25 (the active subset) |
 | `wallets_sp4_full.txt` | SP4-1 … SP4-23 (minus SP4-11) |
+| `wallets_pb.txt` | PB-9 … PB-21 Bitcoin wallets (`tag,address[,label]`), read by `btc_pb_analyze.py` |
 | `wallets_britany.txt` | Britany Stoddard's ETH address only |
 | `addresses.txt` | The original 68-address sample from the very first run |
 
@@ -270,6 +271,7 @@ Before adding any address: it must be `0x` + exactly 40 hex characters (or a `bc
 | `batch/btc_address_report.py` | Any Bitcoin address: every deposit (with source address and USD at that day's price), every send (with destination), balance, totals by sender/recipient. The "how much and from whom" query. | `python3 batch/btc_address_report.py bc1q…` | console | ~10 s |
 | `batch/btc_pb_analyze.py` | The PB Bitcoin wallets (list at the top of the file): deposits/sends/balances with historical USD, NY times. | `python3 batch/btc_pb_analyze.py` | `batch/output/pb_btc_summary.json` (+ raw txs in `batch/output/btc_txs/`) | ~20 s |
 | `batch/build_paypal_sheet.py` | Refresh the workbook's `Crypto Sends to PayPal` tab from chain data, into a copy. Needs fresh `ucf42_balances.csv` + `ucf42_net_funding.csv` (that prefix is hard-wired) and `pb_btc_summary.json`. Row placement and PB client names are configured at the top of the script (`PB_ROWS`, `PB_CLIENT`, `STALE_ROWS`). Prints every sheet-vs-chain discrepancy. | `python3 batch/build_paypal_sheet.py SOURCE.xlsx batch/output/pb_btc_summary.json` | `batch/output/Inbound_OTC_Requests_updated.xlsx` (gitignored) | ~15 s |
+| `batch/paste_block.py` | Copy-paste refresh for the Google Sheet version of the `Crypto Sends to PayPal` tab: feed it the sheet copied as TSV (all columns A..U, header included, any row order) and it prints columns H..U for every row in the same order — chain values for the computed cells, Comments passed through, free-text/planned Send entries kept. Discrepancies go to stderr. | `python3 batch/paste_block.py sheet.tsv > block.tsv` | stdout (paste at column H) | instant |
 | `batch/build_context_doc.py` | Regenerates this document from the files above. | `python3 batch/build_context_doc.py` | `batch/output/CONTEXT_crypto_wallet_tracking.md` | instant |
 | `batch/build_workbook.py` | Older helper: two-tab Balances/Inbounds `.xlsx` from a prefix's CSVs. | `python3 batch/build_workbook.py --prefix P` | `batch/output/P_wallets.xlsx` | instant |
 
@@ -287,10 +289,12 @@ Then emit the paste block — one row per wallet SP4-9…SP4-50 in order, tab-se
 
 **B. Full workbook refresh** (after A's step 2)
 ```
-python3 batch/btc_pb_analyze.py
+python3 batch/btc_pb_analyze.py                       # PB wallets come from batch/wallets_pb.txt
 python3 batch/build_paypal_sheet.py /path/to/Inbound_OTC_Requests.xlsx batch/output/pb_btc_summary.json
 ```
 Read the printed FLAGS before sharing the file. The source workbook is never modified.
+
+If the sheet lives in Google Sheets instead: copy the whole tab, save it as `sheet.tsv`, run `python3 batch/paste_block.py sheet.tsv`, and paste the output at column H of the first data row. Read the NOTE lines it prints (they list every sheet-vs-chain difference and any Send entry that is not on chain).
 
 **C. "How much has X received, and from whom?"**
 - Ethereum: put the address in a one-line list file, then `python3 batch/inbounds.py that.txt --prefix x --min-usd 0` and read `batch/output/x_inbounds.csv` (columns `sender`, `token`, `amount`, `usd_value`, `datetime_utc`). Group by `sender`. Label senders by looking them up in the wallet lists.
@@ -298,7 +302,7 @@ Read the printed FLAGS before sharing the file. The source workbook is never mod
 
 **D. Adding wallets**
 - New SP4/ETH wallet: append `label,address` to the relevant list; the first `net_funding.py` run fetches its full history and caches it. If it's a new client row in the workbook, add the row by hand once (tag + address); the builder then keeps it updated.
-- New PB/BTC wallet: add it to the `PB` list in `btc_pb_analyze.py` **and** to `PB_ROWS` (row number) / `PB_CLIENT` (name, custodian — or omit to leave blank) in `build_paypal_sheet.py`. Identify the client by matching the wallet's send destination against the Requests tab's registered deposit addresses.
+- New PB/BTC wallet: append `tag,address[,label]` to `batch/wallets_pb.txt` **and** (for the xlsx builder only) add it to `PB_ROWS` (row number) / `PB_CLIENT` (name, custodian — or omit to leave blank) in `build_paypal_sheet.py`. Identify the client by matching the wallet's send destination against the Requests tab's registered deposit addresses.
 
 **E. Regenerate this document:** `python3 batch/build_context_doc.py` after any of the above.
 

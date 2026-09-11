@@ -36,6 +36,7 @@ One wallet per line, `label,address`; lines starting with `#` are ignored; addre
 | `wallets_sp4_9_50.txt` | SP4-9 … SP4-50 (42 wallets) |
 | `wallets_sp4_9_25.txt` | SP4-9 … SP4-25 (the active subset) |
 | `wallets_sp4_full.txt` | SP4-1 … SP4-23 (minus SP4-11) |
+| `wallets_pb.txt` | PB-9 … PB-21 Bitcoin wallets (`tag,address[,label]`), read by `btc_pb_analyze.py` |
 | `wallets_britany.txt` | Britany Stoddard's ETH address only |
 | `addresses.txt` | The original 68-address sample from the very first run |
 
@@ -51,6 +52,7 @@ Before adding any address: it must be `0x` + exactly 40 hex characters (or a `bc
 | `batch/btc_address_report.py` | Any Bitcoin address: every deposit (with source address and USD at that day's price), every send (with destination), balance, totals by sender/recipient. The "how much and from whom" query. | `python3 batch/btc_address_report.py bc1q…` | console | ~10 s |
 | `batch/btc_pb_analyze.py` | The PB Bitcoin wallets (list at the top of the file): deposits/sends/balances with historical USD, NY times. | `python3 batch/btc_pb_analyze.py` | `batch/output/pb_btc_summary.json` (+ raw txs in `batch/output/btc_txs/`) | ~20 s |
 | `batch/build_paypal_sheet.py` | Refresh the workbook's `Crypto Sends to PayPal` tab from chain data, into a copy. Needs fresh `ucf42_balances.csv` + `ucf42_net_funding.csv` (that prefix is hard-wired) and `pb_btc_summary.json`. Row placement and PB client names are configured at the top of the script (`PB_ROWS`, `PB_CLIENT`, `STALE_ROWS`). Prints every sheet-vs-chain discrepancy. | `python3 batch/build_paypal_sheet.py SOURCE.xlsx batch/output/pb_btc_summary.json` | `batch/output/Inbound_OTC_Requests_updated.xlsx` (gitignored) | ~15 s |
+| `batch/paste_block.py` | Copy-paste refresh for the Google Sheet version of the `Crypto Sends to PayPal` tab: feed it the sheet copied as TSV (all columns A..U, header included, any row order) and it prints columns H..U for every row in the same order — chain values for the computed cells, Comments passed through, free-text/planned Send entries kept. Discrepancies go to stderr. | `python3 batch/paste_block.py sheet.tsv > block.tsv` | stdout (paste at column H) | instant |
 | `batch/build_context_doc.py` | Regenerates this document from the files above. | `python3 batch/build_context_doc.py` | `batch/output/CONTEXT_crypto_wallet_tracking.md` | instant |
 | `batch/build_workbook.py` | Older helper: two-tab Balances/Inbounds `.xlsx` from a prefix's CSVs. | `python3 batch/build_workbook.py --prefix P` | `batch/output/P_wallets.xlsx` | instant |
 
@@ -68,10 +70,12 @@ Then emit the paste block — one row per wallet SP4-9…SP4-50 in order, tab-se
 
 **B. Full workbook refresh** (after A's step 2)
 ```
-python3 batch/btc_pb_analyze.py
+python3 batch/btc_pb_analyze.py                       # PB wallets come from batch/wallets_pb.txt
 python3 batch/build_paypal_sheet.py /path/to/Inbound_OTC_Requests.xlsx batch/output/pb_btc_summary.json
 ```
 Read the printed FLAGS before sharing the file. The source workbook is never modified.
+
+If the sheet lives in Google Sheets instead: copy the whole tab, save it as `sheet.tsv`, run `python3 batch/paste_block.py sheet.tsv`, and paste the output at column H of the first data row. Read the NOTE lines it prints (they list every sheet-vs-chain difference and any Send entry that is not on chain).
 
 **C. "How much has X received, and from whom?"**
 - Ethereum: put the address in a one-line list file, then `python3 batch/inbounds.py that.txt --prefix x --min-usd 0` and read `batch/output/x_inbounds.csv` (columns `sender`, `token`, `amount`, `usd_value`, `datetime_utc`). Group by `sender`. Label senders by looking them up in the wallet lists.
@@ -79,7 +83,7 @@ Read the printed FLAGS before sharing the file. The source workbook is never mod
 
 **D. Adding wallets**
 - New SP4/ETH wallet: append `label,address` to the relevant list; the first `net_funding.py` run fetches its full history and caches it. If it's a new client row in the workbook, add the row by hand once (tag + address); the builder then keeps it updated.
-- New PB/BTC wallet: add it to the `PB` list in `btc_pb_analyze.py` **and** to `PB_ROWS` (row number) / `PB_CLIENT` (name, custodian — or omit to leave blank) in `build_paypal_sheet.py`. Identify the client by matching the wallet's send destination against the Requests tab's registered deposit addresses.
+- New PB/BTC wallet: append `tag,address[,label]` to `batch/wallets_pb.txt` **and** (for the xlsx builder only) add it to `PB_ROWS` (row number) / `PB_CLIENT` (name, custodian — or omit to leave blank) in `build_paypal_sheet.py`. Identify the client by matching the wallet's send destination against the Requests tab's registered deposit addresses.
 
 **E. Regenerate this document:** `python3 batch/build_context_doc.py` after any of the above.
 

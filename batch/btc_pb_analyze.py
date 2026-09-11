@@ -1,8 +1,8 @@
 """PB Bitcoin wallets: deposits, sends, balances with USD at the historical price.
 
 Fetches each wallet's transactions from Blockstream (public, keyless), prices
-from mempool.space, and writes batch/output/pb_btc_summary.json. Edit the PB
-list below to add wallets. Times are America/New_York to match the workbook.
+from mempool.space, and writes batch/output/pb_btc_summary.json. Add wallets to
+batch/wallets_pb.txt (tag,address[,label]). Times are America/New_York to match the workbook.
 
     python3 batch/btc_pb_analyze.py
 """
@@ -12,11 +12,13 @@ NY = ZoneInfo("America/New_York")
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 TX_DIR = os.path.join(OUT, "btc_txs")
 os.makedirs(TX_DIR, exist_ok=True)
-PB = [("PB-9","CG Payouts Test","bc1qzvewyf7gwuwu0wju68ypt2y7lzc3502qeuvx82"),
-      ("PB-10","BTC RCPT 6 5 26","bc1qtwx375elyrvl696cgeg5exz5aww2xczucwskh0"),
-      ("PB-11","BTC RCPT 073126","bc1qh99g4ct43nqc7pr92hyj3vdceut5sngrputc47"),
-      ("PB-12","BTC RCPT 260812","bc1qcpzuxunccc6mu4c088ed8wmtuy44453p6hj4kp"),
-      ("PB-13","BTC RCPT 260831","bc1qu8ypxwm9xvlj4kruve58v27gjk20zgzhm8td5r")]
+PB_LIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wallets_pb.txt")
+PB = []
+for line in open(PB_LIST):
+    line = line.strip()
+    if line and not line.startswith("#"):
+        parts = [x.strip() for x in line.split(",")]
+        PB.append((parts[0], parts[2] if len(parts) > 2 else "", parts[1]))
 _pc = {}
 def price_at(ts):
     if ts in _pc: return _pc[ts]
